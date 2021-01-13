@@ -1,0 +1,42 @@
+{
+	"name": "scene-tiler",
+	"title": "Scene Tiler",
+	"description": "Scene Tiler",
+	"author": "zeel",
+	"authors": [
+		{
+			"name": "zeel",
+			"email": "zeel02@gmail.com",
+			"url": "https://github.com/zeel01",
+			"discord": "zeel#4200"
+		}
+	],
+	"version": "100.0.0.1",
+	"minimumCoreVersion": "0.7.9",
+	"compatibleCoreVersion": "0.7.9",
+	"scripts": [
+		"scene-tiler.js"
+	],
+	"styles": [
+		"scene-tiler.css"
+	],
+	"languages": [ 
+		{
+			"lang": "en",
+			"name": "English",
+			"path": "lang/en.json"
+		}
+	],
+	"manifest": "https://github.com/zeel01/scene-tiler/releases/latest/download/module.json",
+	"url": "https://github.com/zeel01/scene-tiler",
+	"download": "https://github.com/zeel01/scene-tiler/releases/latest/download/scene-tiler.zip",
+	"readme": "https://github.com/zeel01/scene-tiler/blob/master/readme.md",
+	"bugs": "https://github.com/zeel01/scene-tiler/issues",
+	"changelog": "https://github.com/zeel01/scene-tiler/releases",
+	"media": [
+		{
+			"type": "icon",
+			"url": "https://avatars2.githubusercontent.com/u/1721836"
+		}
+	]
+}
