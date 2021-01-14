@@ -49,7 +49,6 @@ class SceneTiler {
 			const source = duplicate(await fromUuid(`Scene.${id}`));
 
 			await this.placeAllFromSceneAt(source, tileData.x, tileData.y, tileData._id);
-			await this.updateTileFlags(tileData, source);
 		}
 		else {
 			for (const [layer, type] of Object.entries(this.layerNames)) {
@@ -78,7 +77,8 @@ class SceneTiler {
 		for (const [layer, type] of Object.entries(this.layerNames)) {
 			const entities = source[type].map(e => this.offsetCoordinates(e, type, x, y));
 
-			const created = await canvas[layer].createMany(entities);
+			let created = await canvas[layer].createMany(entities) || [];
+			if (!Array.isArray(created)) created = [created];
 
 			const ids = created.map(e => e._id);
 			flagData[type] = ids;
