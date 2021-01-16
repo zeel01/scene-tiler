@@ -3,7 +3,7 @@ class SceneTiler {
 		return {
 			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: STEntityTranslators.translatePointWidthGrids.bind(STEntityTranslators) },
 			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: STEntityTranslators.translatePointWidth.bind(STEntityTranslators)      },
-			"lighting" : { layer: "lighting"  , type: "lights"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
+			"lights"   : { layer: "lighting"  , type: "lights"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
 			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
 			"notes"    : { layer: "notes"     , type: "notes"     , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
 			"walls"    : { layer: "walls"     , type: "walls"     , translator: STEntityTranslators.translateWall.bind(STEntityTranslators)            },
