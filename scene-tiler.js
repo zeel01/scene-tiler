@@ -87,8 +87,25 @@ class SceneTiler {
 		
 		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
 	}
+
+	/**
+	 * Dispatches translation tasks for the apprpriate handlers depending on
+	 * entity type.
+	 * 
+	 * Also calculates the center point cx, cy of the tile in order to pass it along.
+	 *
+	 * @static
+	 * @param {Entity} entity - The entity of the object being translated
+	 * @param {string} type   - The entity type of the entity
+	 * @param {Tile} tile     - The tile used as a positional reference point
+	 * @return {Entity}       - The original entity, now modified
+	 * @memberof SceneTiler
+	 */
 	static translateEntity(entity, type, tile) {
+		/** @type {number} The X coordinate of the center of the tile */
 		const cx = tile.x + tile.width / 2;
+
+		/** @type {number} The Y coordinate of the center of the tile */
 		const cy = tile.y + tile.height / 2;
 
 		if (type == this.layerDefs.walls.type)
@@ -100,6 +117,20 @@ class SceneTiler {
 		return this.standardTranslate(entity, type, tile, cx, cy);
 	}
 
+	/**
+	 * Handles dispatching the translation rutine for "normal" obejcts.
+	 * 
+	 * This includes objects with a single x, y location, and optionally width/height.
+	 *
+	 * @static
+	 * @param {Entity} entity - The entity of the object being translated
+	 * @param {string} type   - The entity type of the entity
+	 * @param {Tile} tile     - The tile used as a positional reference point
+	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
+	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @return {Entity}       - The original entity, now modified
+	 * @memberof SceneTiler
+	 */
 	static standardTranslate(entity, type, tile, cx, cy) {
 		const [x, y] = Object.values(this.layerDefs)
 			.find(d => d.type == type)
@@ -116,6 +147,17 @@ class SceneTiler {
 
 		return entity;
 	}
+	/**
+	 * Handles dispatching the translation rutine for Wall objects.
+	 * 
+	 * @static
+	 * @param {Entity} entity - The entity of the object being translated
+	 * @param {Tile} tile     - The tile used as a positional reference point
+	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
+	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @return {Entity}       - The original entity, now modified
+	 * @memberof SceneTiler
+	 */
 	static wallTranslate(entity, tile, cx, cy) {
 		const d = this.layerDefs.walls
 			.translator(
@@ -128,6 +170,18 @@ class SceneTiler {
 
 		return entity;
 	}
+	/**
+	 * Handles dispatching the translation rutine for Wall objects.
+	 * @todo Implement the template translation algorithm
+	 * 
+	 * @static
+	 * @param {Entity} entity - The entity of the object being translated
+	 * @param {Tile} tile     - The tile used as a positional reference point
+	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
+	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @return {Entity}       - The original entity, now modified
+	 * @memberof SceneTiler
+	 */
 	static templateTranslate(entity, tile, cx, cy) {
 		const [x, y] = this.layerDefs.templates
 			.translator(
