@@ -1,14 +1,23 @@
 class SceneTiler {
+	/**
+	 * An alias for the Entity Translator class
+	 *
+	 * @type {typeof STEntityTranslators}
+	 * @readonly
+	 * @static
+	 * @memberof SceneTiler
+	 */
+	static get TRNS() { return STEntityTranslators; }
 	static get layerDefs() {
 		return {
-			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: STEntityTranslators.translatePointWidthGrids.bind(STEntityTranslators) },
-			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: STEntityTranslators.translatePointWidth.bind(STEntityTranslators)      },
-			"lights"   : { layer: "lighting"  , type: "lights"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
-			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
-			"notes"    : { layer: "notes"     , type: "notes"     , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
-			"walls"    : { layer: "walls"     , type: "walls"     , translator: STEntityTranslators.translateWall.bind(STEntityTranslators)            },
-			"templates": { layer: "templates" , type: "templates" , translator: STEntityTranslators.translateTemplate.bind(STEntityTranslators)        },
-			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: STEntityTranslators.translatePointWidth.bind(STEntityTranslators)      }
+			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: this.TRNS.translatePointWidthGrids.bind(this.TRNS) },
+			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      },
+			"lights"   : { layer: "lighting"  , type: "lights"    , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"notes"    : { layer: "notes"     , type: "notes"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"walls"    : { layer: "walls"     , type: "walls"     , translator: this.TRNS.translateWall.bind(this.TRNS)            },
+			"templates": { layer: "templates" , type: "templates" , translator: this.TRNS.translateTemplate.bind(this.TRNS)        },
+			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      }
 		}
 	}
 	static async copyScene(name) {
@@ -77,13 +86,26 @@ class SceneTiler {
 			}
 		}
 		const event = { shiftKey: false, altKey: false};
+		
+		const tile = await canvas.tiles._onDropTileData(event, data);
 
-		return await canvas.tiles._onDropTileData(event, data);
+		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
+
+		if (scale != 1) await tile.update({
+			width: tile.width * scale,
+			height: tile.height * scale
+		});
+
+		return tile;
 	}
 	static async placeAllFromSceneAt(source, tileData) {
 		const flagData = {};
+		
+		/** @type {number} The ratio of grid size between source and target scenes */
+		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
+
 		for (const def of Object.values(this.layerDefs)) {
-			const entities = source[def.type].map(e => this.translateEntity(e, def.type, tileData));
+			const entities = source[def.type].map(e => this.translateEntity(e, def.type, tileData, scale));
 
 			let created = await canvas[def.layer].createMany(entities) || [];
 			if (!Array.isArray(created)) created = [created];
@@ -105,10 +127,11 @@ class SceneTiler {
 	 * @param {Entity} entity - The entity of the object being translated
 	 * @param {string} type   - The entity type of the entity
 	 * @param {Tile} tile     - The tile used as a positional reference point
+	 * @param {number} scale  - The ratio of grid size between source and target scenes
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static translateEntity(entity, type, tile) {
+	static translateEntity(entity, type, tile, scale) {
 		/** @type {number} The X coordinate of the center of the tile */
 		const cx = tile.x + tile.width / 2;
 
@@ -116,12 +139,12 @@ class SceneTiler {
 		const cy = tile.y + tile.height / 2;
 
 		if (type == this.layerDefs.walls.type)
-			return this.wallTranslate(entity, tile, cx, cy);
+			return this.wallTranslate(entity, tile, cx, cy, scale);
 
 		if (type == this.layerDefs.templates.type)
-			return this.templateTranslate(entity, tile, cx, cy);
+			return this.templateTranslate(entity, tile, cx, cy, scale);
 
-		return this.standardTranslate(entity, type, tile, cx, cy);
+		return this.standardTranslate(entity, type, tile, cx, cy, scale);
 	}
 
 	/**
@@ -135,22 +158,28 @@ class SceneTiler {
 	 * @param {Tile} tile     - The tile used as a positional reference point
 	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
 	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @param {number} scale  - The ratio of grid size between source and target scenes
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static standardTranslate(entity, type, tile, cx, cy) {
-		const [x, y] = Object.values(this.layerDefs)
+	static standardTranslate(entity, type, tile, cx, cy, scale) {
+		const [x, y, w, h] = Object.values(this.layerDefs)
 			.find(d => d.type == type)
 			.translator(
 				tile.x, tile.y,
 				entity.x, entity.y,
 				cx, cy,
-				tile.rotation,
+				tile.rotation, scale,
 				entity.width, entity.height
 			);
 		entity.rotation += tile.rotation;
 		entity.x = x;
 		entity.y = y;
+
+		if (w) {
+			entity.width = w;
+			entity.height = h;
+		}
 
 		return entity;
 	}
@@ -162,15 +191,16 @@ class SceneTiler {
 	 * @param {Tile} tile     - The tile used as a positional reference point
 	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
 	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @param {number} scale  - The ratio of grid size between source and target scenes
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static wallTranslate(entity, tile, cx, cy) {
+	static wallTranslate(entity, tile, cx, cy, scale) {
 		const d = this.layerDefs.walls
 			.translator(
 				tile.x, tile.y,
 				cx, cy,
-				tile.rotation,
+				tile.rotation, scale,
 				entity.c
 			)
 		entity.c = d;
@@ -186,16 +216,17 @@ class SceneTiler {
 	 * @param {Tile} tile     - The tile used as a positional reference point
 	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
 	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @param {number} scale  - The ratio of grid size between source and target scenes
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static templateTranslate(entity, tile, cx, cy) {
+	static templateTranslate(entity, tile, cx, cy, scale) {
 		const [x, y] = this.layerDefs.templates
 			.translator(
 				tile.x, tile.y,
 				entity.x, entity.y,
 				cx, cy,
-				tile.rotation,
+				tile.rotation, scale
 			)
 		entity.x = x;
 		entity.y = y;
