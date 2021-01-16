@@ -62,7 +62,12 @@ class STEntityTranslators {
 	 * @memberof STEntityTranslators
 	 */
 	static translatePointWidth(ox, oy, x, y, cx, cy, angle, w, h) {
-		const mx = x + w / 2, my = y + h / 2;
+		/** @type {number} Middle X coordinate */
+		const mx = x + w / 2;
+
+		/** @type {number} Middle Y coordinate */
+		const my = y + h / 2;
+
 		const [nx, ny] = this.translatePoint(ox, oy, mx, my, cx, cy, angle);
 
 		return [nx - w / 2, ny - h / 2];
@@ -87,7 +92,10 @@ class STEntityTranslators {
 	 * @memberof STEntityTranslators
 	 */
 	static translatePointWidthGrids(ox, oy, x, y, cx, cy, angle, w, h) {
+		/** @type {number} The true width */
 		const pw = w * canvas.scene.data.grid;
+
+		/** @type {number} The true height */
 		const ph = h * canvas.scene.data.grid;
 
 		return this.translatePointWidth(ox, oy, x, y, cx, cy, angle, pw, ph);
@@ -109,6 +117,7 @@ class STEntityTranslators {
 	 * @memberof STEntityTranslators
 	 */
 	static translateWall(ox, oy, cx, cy, angle, c) {
+		/** @type {number[]} An array to store the translated coordinates in as they are calcualted */
 		const d = [];
 
 		for (let i = 0; i < c.length; i += 2) {
