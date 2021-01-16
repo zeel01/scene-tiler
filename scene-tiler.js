@@ -1,14 +1,62 @@
+class EntityTranslators {
+	static translate(ox, oy, x, y) {
+		return [x + ox, y + oy];
+	}
+	static translatePoint(ox, oy, x, y, cx, cy, angle) {
+		let [nx, ny] = this.translate(ox, oy, x, y);
+		if (angle) [nx, ny] = this.rotate(cx, cy, nx, ny, angle);
+
+		return [nx, ny];
+	}
+	static translatePointWidth(ox, oy, x, y, cx, cy, angle, w, h) {
+		const mx = x + w / 2, my = y + h / 2;
+		const [nx, ny] = this.translatePoint(ox, oy, mx, my, cx, cy, angle);
+
+		return [nx - w / 2, ny - h / 2];
+	}
+	static translatePointWidthGrids(ox, oy, x, y, cx, cy, angle, w, h) {
+		const pw = w * canvas.scene.data.grid;
+		const ph = h * canvas.scene.data.grid;
+
+		return this.translatePointWidth(ox, oy, x, y, cx, cy, angle, pw, ph);
+	}
+
+	static translateWall(ox, oy, cx, cy, angle, c) {
+		const d = [];
+
+		for (let i = 0; i < c.length; i += 2) {
+			let x = c[i], y = c[i+1];
+			[x, y] = this.translatePoint(ox, oy, x, y, cx, cy, angle);
+			d.push(x);
+			d.push(y);
+		}
+
+		return d;
+	}
+
+	static translateTemplate(...args) { return this.translatePoint(...args); }
+
+	static rotate(cx, cy, x, y, angle) {
+		let radians = (Math.PI / 180) * angle,
+			cos = Math.cos(radians),
+			sin = Math.sin(radians),
+			nx = (cos * (x - cx)) - (sin * (y - cy)) + cx,
+			ny = (cos * (y - cy)) + (sin * (x - cx)) + cy;
+		return [nx, ny];
+	}
+}
+
 class SceneTiler {
-	static get layerNames() {
+	static get layerDefs() {
 		return {
-			"tokens": "tokens",
-			"tiles": "tiles",
-			"lighting": "lights",
-			"sounds": "sounds",
-			"notes": "notes",
-			"walls": "walls",
-			"templates": "templates",
-			"drawings": "drawings"
+			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: EntityTranslators.translatePointWidthGrids.bind(EntityTranslators) },
+			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: EntityTranslators.translatePointWidth.bind(EntityTranslators)      },
+			"lighting" : { layer: "lighting"  , type: "lights"    , translator: EntityTranslators.translatePoint.bind(EntityTranslators)           },
+			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: EntityTranslators.translatePoint.bind(EntityTranslators)           },
+			"notes"    : { layer: "notes"     , type: "notes"     , translator: EntityTranslators.translatePoint.bind(EntityTranslators)           },
+			"walls"    : { layer: "walls"     , type: "walls"     , translator: EntityTranslators.translateWall.bind(EntityTranslators)            },
+			"templates": { layer: "templates" , type: "templates" , translator: EntityTranslators.translateTemplate.bind(EntityTranslators)        },
+			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: EntityTranslators.translatePointWidth.bind(EntityTranslators)      }
 		}
 	}
 	static async copyScene(name) {
@@ -20,13 +68,13 @@ class SceneTiler {
 			return;
 		}
 
-		for (const [layer, type] of Object.entries(this.layerNames)) {
-			await canvas[layer].createMany(source.data[type]);
+		for (const def of Object.values(this.layerDefs)) {
+			await canvas[def.layer].createMany(source.data[def.type]);
 		}
 	}
 	static async clearScene() {
-		for (const [layer, type] of Object.entries(this.layerNames)) {
-			await canvas[layer].deleteAll();
+		for (const def of Object.values(this.layerDefs)) {
+			await canvas[def.layer].deleteAll();
 		}
 	}
 
@@ -41,18 +89,19 @@ class SceneTiler {
 		
 		return this.createTile(source, x, y);
 	}
-	static async updateTile(scene, tileData, update, options, id) {
+	static async updateTile(scene, tileData, update, options) {
 		if (typeof update?.locked == "undefined") return;
+		const id = tileData.flags["scene-tiler"]?.scene;
+
 		if (update.locked) {
-			const id = tileData.flags["scene-tiler"]?.scene;
 			if (!id) return;
 			const source = duplicate(await fromUuid(`Scene.${id}`));
 
-			await this.placeAllFromSceneAt(source, tileData.x, tileData.y, tileData._id);
+			await this.placeAllFromSceneAt(source, tileData);
 		}
 		else {
-			for (const [layer, type] of Object.entries(this.layerNames)) {
-				await canvas[layer].deleteMany(tileData.flags["scene-tiler"].entities[type]);
+			for (const def of Object.values(this.layerDefs)) {
+				await canvas[def.layer].deleteMany(tileData.flags["scene-tiler"].entities[def.type]);
 			}
 			await canvas.tiles.get(id).update({ "flags.scene-tiler.entities": null }); 
 		}
@@ -65,38 +114,78 @@ class SceneTiler {
 			tileSize: canvas.scene.data.grid,
 			x, y,
 			flags: {
-				"scene-tiler": { scene: source._id }
+				"scene-tiler": { scene: source._id } 
 			}
 		}
 		const event = { shiftKey: false, altKey: false};
 
 		return await canvas.tiles._onDropTileData(event, data);
 	}
-	static async placeAllFromSceneAt(source, x, y, id) {
+	static async placeAllFromSceneAt(source, tileData) {
 		const flagData = {};
-		for (const [layer, type] of Object.entries(this.layerNames)) {
-			const entities = source[type].map(e => this.offsetCoordinates(e, type, x, y));
+		for (const def of Object.values(this.layerDefs)) {
+			const entities = source[def.type].map(e => this.translateEntity(e, def.type, tileData));
 
-			let created = await canvas[layer].createMany(entities) || [];
+			let created = await canvas[def.layer].createMany(entities) || [];
 			if (!Array.isArray(created)) created = [created];
 
 			const ids = created.map(e => e._id);
-			flagData[type] = ids;
+			flagData[def.type] = ids;
 		}
 		
-		await canvas.tiles.get(id).update({ "flags.scene-tiler.entities": flagData });
+		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
 	}
-	static offsetCoordinates(entity, type, x, y) {
-		if (type == "walls") {
-			entity.c[0] += x;
-			entity.c[1] += y;
-			entity.c[2] += x;
-			entity.c[3] += y;
-		}
-		else {
-			entity.x += x;
-			entity.y += y;
-		}
+	static translateEntity(entity, type, tile) {
+		const cx = tile.x + tile.width / 2;
+		const cy = tile.y + tile.height / 2;
+
+		if (type == this.layerDefs.walls.type)
+			return this.wallTranslate(entity, tile, cx, cy);
+
+		if (type == this.layerDefs.templates.type)
+			return this.templateTranslate(entity, tile, cx, cy);
+
+		return this.standardTranslate(entity, type, tile, cx, cy);
+	}
+
+	static standardTranslate(entity, type, tile, cx, cy) {
+		const [x, y] = Object.values(this.layerDefs)
+			.find(d => d.type == type)
+			.translator(
+				tile.x, tile.y,
+				entity.x, entity.y,
+				cx, cy,
+				tile.rotation,
+				entity.width, entity.height
+			);
+		entity.rotation += tile.rotation;
+		entity.x = x;
+		entity.y = y;
+
+		return entity;
+	}
+	static wallTranslate(entity, tile, cx, cy) {
+		const d = this.layerDefs.walls
+			.translator(
+				tile.x, tile.y,
+				cx, cy,
+				tile.rotation,
+				entity.c
+			)
+		entity.c = d;
+
+		return entity;
+	}
+	static templateTranslate(entity, tile, cx, cy) {
+		const [x, y] = this.layerDefs.templates
+			.translator(
+				tile.x, tile.y,
+				entity.x, entity.y,
+				cx, cy,
+				tile.rotation,
+			)
+		entity.x = x;
+		entity.y = y;
 
 		return entity;
 	}
