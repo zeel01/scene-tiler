@@ -16,7 +16,7 @@ class SceneTiler {
 			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
 			"notes"    : { layer: "notes"     , type: "notes"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
 			"walls"    : { layer: "walls"     , type: "walls"     , translator: this.TRNS.translateWall.bind(this.TRNS)            },
-			"templates": { layer: "templates" , type: "templates" , translator: this.TRNS.translateTemplate.bind(this.TRNS)        },
+			"templates": { layer: "templates" , type: "templates" , translator: this.TRNS.translatePoint.bind(this.TRNS)        },
 			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      }
 		}
 	}
@@ -71,7 +71,7 @@ class SceneTiler {
 			for (const def of Object.values(this.layerDefs)) {
 				await canvas[def.layer].deleteMany(tileData.flags["scene-tiler"].entities[def.type]);
 			}
-			await canvas.tiles.get(id).update({ "flags.scene-tiler.entities": null }); 
+			await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": null }); 
 		}
 	}
 
@@ -141,8 +141,8 @@ class SceneTiler {
 		if (type == this.layerDefs.walls.type)
 			return this.wallTranslate(entity, tile, cx, cy, scale);
 
-		if (type == this.layerDefs.templates.type)
-			return this.templateTranslate(entity, tile, cx, cy, scale);
+		//if (type == this.layerDefs.templates.type)
+		//	return this.templateTranslate(entity, tile, cx, cy, scale);
 
 		return this.standardTranslate(entity, type, tile, cx, cy, scale);
 	}
@@ -172,7 +172,12 @@ class SceneTiler {
 				tile.rotation, scale,
 				entity.width, entity.height
 			);
-		entity.rotation += tile.rotation;
+		
+		if (typeof entity.rotation != "undefined")
+			entity.rotation += tile.rotation;
+		if (typeof entity.direction != "undefined")
+			entity.direction += tile.rotation;
+
 		entity.x = x;
 		entity.y = y;
 
@@ -204,32 +209,6 @@ class SceneTiler {
 				entity.c
 			)
 		entity.c = d;
-
-		return entity;
-	}
-	/**
-	 * Handles dispatching the translation rutine for Wall objects.
-	 * @todo Implement the template translation algorithm
-	 * 
-	 * @static
-	 * @param {Entity} entity - The entity of the object being translated
-	 * @param {Tile} tile     - The tile used as a positional reference point
-	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
-	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
-	 * @param {number} scale  - The ratio of grid size between source and target scenes
-	 * @return {Entity}       - The original entity, now modified
-	 * @memberof SceneTiler
-	 */
-	static templateTranslate(entity, tile, cx, cy, scale) {
-		const [x, y] = this.layerDefs.templates
-			.translator(
-				tile.x, tile.y,
-				entity.x, entity.y,
-				cx, cy,
-				tile.rotation, scale
-			)
-		entity.x = x;
-		entity.y = y;
 
 		return entity;
 	}

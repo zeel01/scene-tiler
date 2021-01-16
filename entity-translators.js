@@ -152,14 +152,6 @@ class STEntityTranslators {
 
 		return d;
 	}
-	
-	/**
-	 * Translates the coordinates of a measured template.
-	 * @todo This still needs to be implemented.
-	 * @param  {...any} args 
-	 */
-	static translateTemplate(...args) { return this.translatePoint(...args); }
-
 
 	/**
 	 * Rotates the point x, y around the point cx, cy by the given angle.
