@@ -1,62 +1,14 @@
-class EntityTranslators {
-	static translate(ox, oy, x, y) {
-		return [x + ox, y + oy];
-	}
-	static translatePoint(ox, oy, x, y, cx, cy, angle) {
-		let [nx, ny] = this.translate(ox, oy, x, y);
-		if (angle) [nx, ny] = this.rotate(cx, cy, nx, ny, angle);
-
-		return [nx, ny];
-	}
-	static translatePointWidth(ox, oy, x, y, cx, cy, angle, w, h) {
-		const mx = x + w / 2, my = y + h / 2;
-		const [nx, ny] = this.translatePoint(ox, oy, mx, my, cx, cy, angle);
-
-		return [nx - w / 2, ny - h / 2];
-	}
-	static translatePointWidthGrids(ox, oy, x, y, cx, cy, angle, w, h) {
-		const pw = w * canvas.scene.data.grid;
-		const ph = h * canvas.scene.data.grid;
-
-		return this.translatePointWidth(ox, oy, x, y, cx, cy, angle, pw, ph);
-	}
-
-	static translateWall(ox, oy, cx, cy, angle, c) {
-		const d = [];
-
-		for (let i = 0; i < c.length; i += 2) {
-			let x = c[i], y = c[i+1];
-			[x, y] = this.translatePoint(ox, oy, x, y, cx, cy, angle);
-			d.push(x);
-			d.push(y);
-		}
-
-		return d;
-	}
-
-	static translateTemplate(...args) { return this.translatePoint(...args); }
-
-	static rotate(cx, cy, x, y, angle) {
-		let radians = (Math.PI / 180) * angle,
-			cos = Math.cos(radians),
-			sin = Math.sin(radians),
-			nx = (cos * (x - cx)) - (sin * (y - cy)) + cx,
-			ny = (cos * (y - cy)) + (sin * (x - cx)) + cy;
-		return [nx, ny];
-	}
-}
-
 class SceneTiler {
 	static get layerDefs() {
 		return {
-			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: EntityTranslators.translatePointWidthGrids.bind(EntityTranslators) },
-			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: EntityTranslators.translatePointWidth.bind(EntityTranslators)      },
-			"lighting" : { layer: "lighting"  , type: "lights"    , translator: EntityTranslators.translatePoint.bind(EntityTranslators)           },
-			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: EntityTranslators.translatePoint.bind(EntityTranslators)           },
-			"notes"    : { layer: "notes"     , type: "notes"     , translator: EntityTranslators.translatePoint.bind(EntityTranslators)           },
-			"walls"    : { layer: "walls"     , type: "walls"     , translator: EntityTranslators.translateWall.bind(EntityTranslators)            },
-			"templates": { layer: "templates" , type: "templates" , translator: EntityTranslators.translateTemplate.bind(EntityTranslators)        },
-			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: EntityTranslators.translatePointWidth.bind(EntityTranslators)      }
+			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: STEntityTranslators.translatePointWidthGrids.bind(STEntityTranslators) },
+			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: STEntityTranslators.translatePointWidth.bind(STEntityTranslators)      },
+			"lighting" : { layer: "lighting"  , type: "lights"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
+			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
+			"notes"    : { layer: "notes"     , type: "notes"     , translator: STEntityTranslators.translatePoint.bind(STEntityTranslators)           },
+			"walls"    : { layer: "walls"     , type: "walls"     , translator: STEntityTranslators.translateWall.bind(STEntityTranslators)            },
+			"templates": { layer: "templates" , type: "templates" , translator: STEntityTranslators.translateTemplate.bind(STEntityTranslators)        },
+			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: STEntityTranslators.translatePointWidth.bind(STEntityTranslators)      }
 		}
 	}
 	static async copyScene(name) {
