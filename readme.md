@@ -1,0 +1,1 @@
+Creates tiles by dragging and dropping a scene onto another scene, then populates the tile with placeables from the source scene.
