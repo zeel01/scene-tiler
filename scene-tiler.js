@@ -10,14 +10,14 @@ class SceneTiler {
 	static get TRNS() { return STEntityTranslators; }
 	static get layerDefs() {
 		return {
-			"tokens"   : { layer: "tokens"    , type: "tokens"    , translator: this.TRNS.translatePointWidthGrids.bind(this.TRNS) },
-			"tiles"    : { layer: "tiles"     , type: "tiles"     , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      },
-			"lights"   : { layer: "lighting"  , type: "lights"    , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"sounds"   : { layer: "sounds"    , type: "sounds"    , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"notes"    : { layer: "notes"     , type: "notes"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"walls"    : { layer: "walls"     , type: "walls"     , translator: this.TRNS.translateWall.bind(this.TRNS)            },
-			"templates": { layer: "templates" , type: "templates" , translator: this.TRNS.translatePoint.bind(this.TRNS)        },
-			"drawings" : { layer: "drawings"  , type: "drawings"  , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      }
+			"tokens"   : { layer: "tokens"    , type: "tokens"    , className: "Token"            , translator: this.TRNS.translatePointWidthGrids.bind(this.TRNS) },
+			"tiles"    : { layer: "tiles"     , type: "tiles"     , className: "Tile"             , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      },
+			"lights"   : { layer: "lighting"  , type: "lights"    , className: "AmbientLight"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"sounds"   : { layer: "sounds"    , type: "sounds"    , className: "AmbientSound"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"notes"    : { layer: "notes"     , type: "notes"     , className: "Note"             , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"walls"    : { layer: "walls"     , type: "walls"     , className: "Wall"             , translator: this.TRNS.translateWall.bind(this.TRNS)            },
+			"templates": { layer: "templates" , type: "templates" , className: "MeasuredTemplate" , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
+			"drawings" : { layer: "drawings"  , type: "drawings"  , className: "Drawing"          , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      }
 		}
 	}
 	static async copyScene(name) {
@@ -81,11 +81,14 @@ class SceneTiler {
 	}
 
 	static async createTile(source, uuid, x, y) {
+		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
+		
 		const data = {
 			img: source.img,
 			type: "Tile",
 			tileSize: canvas.scene.data.grid,
-			x, y,
+			x: x * scale,
+			y: y * scale,
 			flags: {
 				"scene-tiler": { scene: uuid } 
 			}
@@ -94,7 +97,7 @@ class SceneTiler {
 		const event = { shiftKey: false, altKey: false};
 		const tile = await canvas.tiles._onDropTileData(event, data);
 
-		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
+		
 
 		await tile.update({
 			width: source.width * scale,
@@ -105,6 +108,7 @@ class SceneTiler {
 	}
 	static async placeAllFromSceneAt(source, tileData) {
 		const flagData = {};
+		const createdItems = {};
 		
 		const padding = source.padding, grid = source.grid;
 		const px = Math.ceil(source.width / grid * padding) * grid;
@@ -119,11 +123,14 @@ class SceneTiler {
 			let created = await canvas[def.layer].createMany(entities) || [];
 			if (!Array.isArray(created)) created = [created];
 
+			createdItems[def.className] = created;
+
 			const ids = created.map(e => e._id);
 			flagData[def.type] = ids;
 		}
 		
 		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
+		if (window.tokenAttacher) await tokenAttacher.regenerateLinks(createdItems);
 	}
 
 	/**
