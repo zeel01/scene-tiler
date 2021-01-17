@@ -46,10 +46,13 @@ class STEntityTranslators {
 	 * @param {number} cy       - The Y coordinate of the rotation center
 	 * @param {number} angle    - The angle of the rotation
 	 * @param {number} scale    - The ratio of grid size between source and target scenes
+	 * @param {number} px       - The amount of scene padding in the X axis
+	 * @param {number} py       - The amount of scene padding in the Y axis	 
 	 * @return {[number, number]} The translated and rotated point
 	 * @memberof STEntityTranslators
 	 */
-	static translatePoint(ox, oy, x, y, cx, cy, angle, scale) {
+	static translatePoint(ox, oy, x, y, cx, cy, angle, scale, px, py) {
+		if (px)         [x, y] = this.translate(-px, -py, x, y);
 		if (scale != 1) [x, y] = this.scale(x, y, scale);
 		                [x, y] = this.translate(ox, oy, x, y);
 		if (angle)      [x, y] = this.rotate(cx, cy, x, y, angle);
@@ -74,19 +77,21 @@ class STEntityTranslators {
 	 * @param {number} cy       - The Y coordinate of the rotation center
 	 * @param {number} angle    - The angle of the rotation
 	 * @param {number} scale    - The ratio of grid size between source and target scenes
+	 * @param {number} px       - The amount of scene padding in the X axis
+	 * @param {number} py       - The amount of scene padding in the Y axis	 
 	 * @param {number} w        - The width of the object
 	 * @param {number} h        - The height of the object
 	 * @return {[number, number]} The translated and rotated point
 	 * @memberof STEntityTranslators
 	 */
-	static translatePointWidth(ox, oy, x, y, cx, cy, angle, scale, w, h) {
+	static translatePointWidth(ox, oy, x, y, cx, cy, angle, scale, px, py, w, h) {
 		/** @type {number} Middle X coordinate */
 		const mx = x + w / 2;
 
 		/** @type {number} Middle Y coordinate */
 		const my = y + h / 2;
 
-		[x, y] = this.translatePoint(ox, oy, mx, my, cx, cy, angle, scale);
+		[x, y] = this.translatePoint(ox, oy, mx, my, cx, cy, angle, scale, px, py);
 		
 		if (scale != 1) [w, h] = this.scale(w, h, scale);
 
@@ -107,18 +112,20 @@ class STEntityTranslators {
 	 * @param {number} cy       - The Y coordinate of the rotation center
 	 * @param {number} angle    - The angle of the rotation
 	 * @param {number} scale    - The ratio of grid size between source and target scenes
+	 * @param {number} px       - The amount of scene padding in the X axis
+	 * @param {number} py       - The amount of scene padding in the Y axis	 
 	 * @param {number} w        - The width of the object
 	 * @param {number} h        - The height of the object
 	 * @return {[number, number]} The translated and rotated point
 	 * @memberof STEntityTranslators
 	 */
-	static translatePointWidthGrids(ox, oy, x, y, cx, cy, angle, scale, w, h) {
+	static translatePointWidthGrids(ox, oy, x, y, cx, cy, angle, scale, px, py, w, h) {
 		let grid = canvas.scene.data.grid;
 		if (scale != 1) grid = grid / scale; 
 
 		[w, h] = this.scale(w, h, grid);
 		
-		[x, y] = this.translatePointWidth(ox, oy, x, y, cx, cy, angle, scale, w, h);
+		[x, y] = this.translatePointWidth(ox, oy, x, y, cx, cy, angle, scale, px, py, w, h);
 		
 		return [x, y]; 
 	}
@@ -135,17 +142,19 @@ class STEntityTranslators {
 	 * @param {number} cy       - The Y coordinate of the rotation center
 	 * @param {number} angle    - The angle of the rotation
 	 * @param {number} scale    - The ratio of grid size between source and target scenes
+	 * @param {number} px       - The amount of scene padding in the X axis
+	 * @param {number} py       - The amount of scene padding in the Y axis	 
 	 * @param {number[]} c      - The array of wall point coordinates
 	 * @return {number[]}       - The translated array of coordinates
 	 * @memberof STEntityTranslators
 	 */
-	static translateWall(ox, oy, cx, cy, angle, scale, c) {
+	static translateWall(ox, oy, cx, cy, angle, scale, px, py, c) {
 		/** @type {number[]} An array to store the translated coordinates in as they are calcualted */
 		const d = [];
 
 		for (let i = 0; i < c.length; i += 2) {
 			let x = c[i], y = c[i+1];
-			[x, y] = this.translatePoint(ox, oy, x, y, cx, cy, angle, scale);
+			[x, y] = this.translatePoint(ox, oy, x, y, cx, cy, angle, scale, px, py);
 			d.push(x);
 			d.push(y);
 		}

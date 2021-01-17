@@ -46,24 +46,29 @@ class SceneTiler {
 		}
 	}
 
-	static async dropCanvasData(canvas, { id, type, x, y }) {
+	static async dropCanvasData(canvas, { id, type, pack, x, y }) {
 		if (type != "Scene") return;
-		const source = duplicate(await fromUuid(`${type}.${id}`));
+		
+		let uuid = "";
+		if (pack) uuid = `Compendium.${pack}.${id}`;
+		else      uuid = `${type}.${id}`;
+	
+		const source = duplicate(await fromUuid(uuid));
 		
 		if (!source) { 
 			console.debug("Source scene not found.");
 			return;
 		}
 		
-		return this.createTile(source, x, y);
+		return this.createTile(source, uuid, x, y);
 	}
 	static async updateTile(scene, tileData, update, options) {
 		if (typeof update?.locked == "undefined") return;
-		const id = tileData.flags["scene-tiler"]?.scene;
+		const uuid = tileData.flags["scene-tiler"]?.scene;
 
 		if (update.locked) {
-			if (!id) return;
-			const source = duplicate(await fromUuid(`Scene.${id}`));
+			if (!uuid) return;
+			const source = duplicate(await fromUuid(uuid));
 
 			await this.placeAllFromSceneAt(source, tileData);
 		}
@@ -75,14 +80,16 @@ class SceneTiler {
 		}
 	}
 
-	static async createTile(source, x, y) {
+	static async createTile(source, uuid, x, y) {
 		const data = {
 			img: source.img,
 			type: "Tile",
 			tileSize: canvas.scene.data.grid,
+			width: source.width,
+			height: source.height,
 			x, y,
 			flags: {
-				"scene-tiler": { scene: source._id } 
+				"scene-tiler": { scene: uuid } 
 			}
 		}
 		const event = { shiftKey: false, altKey: false};
@@ -90,10 +97,10 @@ class SceneTiler {
 		const tile = await canvas.tiles._onDropTileData(event, data);
 
 		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
-
-		if (scale != 1) await tile.update({
-			width: tile.width * scale,
-			height: tile.height * scale
+		//if (scale != 1)
+		await tile.update({
+			width: source.width * scale,
+			height: source.height * scale
 		});
 
 		return tile;
@@ -101,11 +108,15 @@ class SceneTiler {
 	static async placeAllFromSceneAt(source, tileData) {
 		const flagData = {};
 		
+		const padding = source.padding, grid = source.grid;
+		const px = Math.ceil(source.width / grid * padding) * grid;
+		const py = Math.ceil(source.height / grid * padding) * grid;
+
 		/** @type {number} The ratio of grid size between source and target scenes */
-		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
+		const scale = this.TRNS.getScaleFactor(grid, canvas.scene.data.grid);
 
 		for (const def of Object.values(this.layerDefs)) {
-			const entities = source[def.type].map(e => this.translateEntity(e, def.type, tileData, scale));
+			const entities = source[def.type].map(e => this.translateEntity(e, def.type, tileData, scale, px, py));
 
 			let created = await canvas[def.layer].createMany(entities) || [];
 			if (!Array.isArray(created)) created = [created];
@@ -128,10 +139,12 @@ class SceneTiler {
 	 * @param {string} type   - The entity type of the entity
 	 * @param {Tile} tile     - The tile used as a positional reference point
 	 * @param {number} scale  - The ratio of grid size between source and target scenes
+	 * @param {number} px     - The amount of scene padding in the X axis
+	 * @param {number} py     - The amount of scene padding in the Y axis
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static translateEntity(entity, type, tile, scale) {
+	static translateEntity(entity, type, tile, scale, px, py) {
 		/** @type {number} The X coordinate of the center of the tile */
 		const cx = tile.x + tile.width / 2;
 
@@ -139,12 +152,12 @@ class SceneTiler {
 		const cy = tile.y + tile.height / 2;
 
 		if (type == this.layerDefs.walls.type)
-			return this.wallTranslate(entity, tile, cx, cy, scale);
+			return this.wallTranslate(entity, tile, cx, cy, scale, px, py);
 
 		//if (type == this.layerDefs.templates.type)
 		//	return this.templateTranslate(entity, tile, cx, cy, scale);
 
-		return this.standardTranslate(entity, type, tile, cx, cy, scale);
+		return this.standardTranslate(entity, type, tile, cx, cy, scale, px, py);
 	}
 
 	/**
@@ -159,17 +172,19 @@ class SceneTiler {
 	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
 	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
 	 * @param {number} scale  - The ratio of grid size between source and target scenes
+	 * @param {number} px     - The amount of scene padding in the X axis
+	 * @param {number} py     - The amount of scene padding in the Y axis
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static standardTranslate(entity, type, tile, cx, cy, scale) {
+	static standardTranslate(entity, type, tile, cx, cy, scale, px, py) {
 		const [x, y, w, h] = Object.values(this.layerDefs)
 			.find(d => d.type == type)
 			.translator(
 				tile.x, tile.y,
 				entity.x, entity.y,
 				cx, cy,
-				tile.rotation, scale,
+				tile.rotation, scale, px, py,
 				entity.width, entity.height
 			);
 		
@@ -197,15 +212,17 @@ class SceneTiler {
 	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
 	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
 	 * @param {number} scale  - The ratio of grid size between source and target scenes
+	 * @param {number} px     - The amount of scene padding in the X axis
+	 * @param {number} py     - The amount of scene padding in the Y axis
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
-	static wallTranslate(entity, tile, cx, cy, scale) {
+	static wallTranslate(entity, tile, cx, cy, scale, px, py) {
 		const d = this.layerDefs.walls
 			.translator(
 				tile.x, tile.y,
 				cx, cy,
-				tile.rotation, scale,
+				tile.rotation, scale, px, py,
 				entity.c
 			)
 		entity.c = d;
