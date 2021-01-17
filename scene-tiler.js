@@ -85,19 +85,17 @@ class SceneTiler {
 			img: source.img,
 			type: "Tile",
 			tileSize: canvas.scene.data.grid,
-			width: source.width,
-			height: source.height,
 			x, y,
 			flags: {
 				"scene-tiler": { scene: uuid } 
 			}
 		}
+
 		const event = { shiftKey: false, altKey: false};
-		
 		const tile = await canvas.tiles._onDropTileData(event, data);
 
 		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
-		//if (scale != 1)
+
 		await tile.update({
 			width: source.width * scale,
 			height: source.height * scale
