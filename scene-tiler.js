@@ -87,22 +87,21 @@ class SceneTiler {
 			img: source.img || "modules/scene-tiler/_Blank.png",
 			type: "Tile",
 			tileSize: canvas.scene.data.grid,
-			x: x * scale,
-			y: y * scale,
+			x, y,
 			flags: {
 				"scene-tiler": { scene: uuid } 
 			}
 		}
 
 		const event = { shiftKey: false, altKey: false};
-		const tile = await canvas.tiles._onDropTileData(event, data);
+		const tile  = await canvas.tiles._onDropTileData(event, data);
 
-		
+		const  width = source.width  * scale,
+		      height = source.height * scale;
+		           x = (x - width  / 2);
+		           y = (y - height / 2);
 
-		await tile.update({
-			width: source.width * scale,
-			height: source.height * scale
-		});
+		await tile.update({	width, height, x, y });
 
 		return tile;
 	}
