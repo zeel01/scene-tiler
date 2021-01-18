@@ -116,8 +116,15 @@ class SceneTiler {
 		/** @type {number} The ratio of grid size between source and target scenes */
 		const scale = this.TRNS.getScaleFactor(grid, canvas.scene.data.grid);
 
+		let TA = false;
+
 		for (const def of Object.values(this.layerDefs)) {
-			const entities = source[def.type].map(e => this.translateEntity(e, def.type, tileData, scale, px, py));
+			const entities = source[def.type].map(entity => {
+				if (entity.data.flags["token-attacher"]) TA = true;
+
+				return this.translateEntity(entity, def.type, tileData, scale, px, py)
+			});
+			
 
 			let created = await canvas[def.layer].createMany(entities) || [];
 			if (!Array.isArray(created)) created = [created];
@@ -129,7 +136,7 @@ class SceneTiler {
 		}
 		
 		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
-		if (window.tokenAttacher) await tokenAttacher.regenerateLinks(createdItems);
+		if (window.tokenAttacher && TA) await tokenAttacher.regenerateLinks(createdItems);
 	}
 
 	/**
