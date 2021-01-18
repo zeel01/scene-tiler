@@ -84,7 +84,7 @@ class SceneTiler {
 		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
 		
 		const data = {
-			img: source.img,
+			img: source.img || "modules/scene-tiler/_Blank.png",
 			type: "Tile",
 			tileSize: canvas.scene.data.grid,
 			x: x * scale,
