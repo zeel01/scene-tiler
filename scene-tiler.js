@@ -120,7 +120,8 @@ class SceneTiler {
 
 		for (const def of Object.values(this.layerDefs)) {
 			const entities = source[def.type].map(entity => {
-				if (entity.data.flags["token-attacher"]) TA = true;
+				if (entity.flags["token-attacher"]) TA = true;
+				if (def.type == this.layerDefs.tiles.type) entity.z += tileData.z;
 
 				return this.translateEntity(entity, def.type, tileData, scale, px, py)
 			});
