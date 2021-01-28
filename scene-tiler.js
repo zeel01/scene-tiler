@@ -137,7 +137,9 @@ class SceneTiler {
 		}
 		
 		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
-		if (window.tokenAttacher && TA) await tokenAttacher.regenerateLinks(createdItems);
+		
+		Hooks.callAll("createPlaceableObjects", canvas.scene, createdItems, {}, game.userId);
+		//if (window.tokenAttacher && TA) await tokenAttacher.regenerateLinks(createdItems);
 	}
 
 	/**
