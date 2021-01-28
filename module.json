@@ -16,6 +16,7 @@
 	"compatibleCoreVersion": "0.7.9",
 	"scripts": [
 		"entity-translators.js",
+		"scene-tiler-helpers.js",
 		"scene-tiler.js"
 	],
 	"styles": [
