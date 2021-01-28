@@ -8,6 +8,22 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static get TRNS() { return STEntityTranslators; }
+
+	/** 
+	 * @typedef {object} LayerDef
+	 * @property {string} layer        - The name of the canvas layer for this entity type
+	 * @property {string} type         - The name of the type of this entity
+	 * @property {string} className    - The Class name of this Entity subclass
+	 * @property {function} translator - A function that can handle translating the position of this entity
+	 *//**
+	 *
+	 * A mapping of layer, type, and class names for each canvas layer, plus translation functions.
+	 *
+	 * @type {Object<string, LayerDef>}
+	 * @readonly
+	 * @static
+	 * @memberof SceneTiler
+	 */
 	static get layerDefs() {
 		return {
 			"tokens"   : { layer: "tokens"    , type: "tokens"    , className: "Token"            , translator: this.TRNS.translatePointWidthGrids.bind(this.TRNS) },
