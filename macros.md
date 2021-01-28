@@ -9,6 +9,12 @@ Next, place the tiles over eachother as desired. Then drag the selection box ove
 This will store the layers data in the scene flags. You can only have one stack of layers per scene.
 
 ```js
+STLayerSwitcher.create();
+```
+
+OR
+
+```js
 canvas.scene.setFlag("scene-tiler", "layers", 
 	canvas.tiles.controlled.map(t => {
 		return { 
@@ -22,6 +28,12 @@ canvas.scene.setFlag("scene-tiler", "layers",
 
 ### Up A Layer
 This macro will activate the next layer above the current layer, or the bottom layer if the current layer is the top.
+
+```js
+STLayerSwitcher.up();
+```
+
+OR
 
 ```js
 (async () => {
@@ -55,6 +67,12 @@ This macro will activate the next layer above the current layer, or the bottom l
 
 ### Down A Layer
 Activates the next layer down, cycling to the top after reaching the bottom.
+
+```js
+STLayerSwitcher.down();
+```
+
+OR
 
 ```js
 (async () => {
