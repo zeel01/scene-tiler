@@ -57,22 +57,61 @@ class SceneTiler {
 		
 		return this.createTile(source, uuid, x, y);
 	}
-	static async preUpdateTile(scene, tileData, update, options) {
+
+	/**
+	 * Handles the preUpdateTile Hook
+	 *
+	 * If the update is a lock/unlock, check if if the scene is being locked. Otherwise return.
+	 *
+	 * If the scene is being locked, deploy the scene tile, otherwise clear it
+	 *
+	 * @static
+	 * @param {object} scene    - The scene in which the tile is being updated
+	 * @param {object} tileData - The data from the tile that is being update
+	 * @param {object} update   - The data that is being updated
+	 * @return {void}             Return early if this is not a lock/unlock update
+	 * @memberof SceneTiler
+	 */
+	static async preUpdateTile(scene, tileData, update) {
 		if (typeof update?.locked == "undefined") return;
-		const uuid = tileData.flags["scene-tiler"]?.scene;
+		if (update.locked) this.deploySceneTile(tileData);
+		else               this.clearSceneTile(tileData);
+	}
 
-		if (update.locked) {
-			if (!uuid) return;
-			const source = duplicate(await fromUuid(uuid));
+	/**
+	 * Creates objects in the current scene based on objects in the source scene.
+	 *
+	 * Get the UUID from flags, if it doesn't exist return.
+	 * Then get the data from the source, and place the objects from it if it exists
+	 *
+	 * @static
+	 * @param {object} data    - The data from the tile that is being update
+	 * @return {Promise<void>}   Return early if the UUID doesn't retrieve a source scene 
+	 * @memberof SceneTiler
+	 */
+	static async deploySceneTile(data) {
+		const uuid = data.flags["scene-tiler"]?.scene;
+		if (!uuid) return;
 
-			await this.placeAllFromSceneAt(source, tileData);
+		const source = duplicate(await fromUuid(uuid));
+		if (source) await this.placeAllFromSceneAt(source, data);
+	}
+
+	/**
+	 * Delete objects associated with this scene tile
+	  *
+	 * Cycle through all layers and delete entities that were created by this tile,
+	 * then set the flag for entities to null
+	 *
+	 * @static
+	 * @param {object} data    - The data from the tile that is being update
+	 * @memberof SceneTiler
+	 */
+	static async clearSceneTile(data) {
+		for (const def of Object.values(this.layerDefs)) {
+			await canvas[def.layer].deleteMany(data.flags["scene-tiler"].entities[def.type]);
 		}
-		else {
-			for (const def of Object.values(this.layerDefs)) {
-				await canvas[def.layer].deleteMany(tileData.flags["scene-tiler"].entities[def.type]);
-			}
-			await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": null }); 
-		}
+		await canvas.tiles.get(data._id).update({ "flags.scene-tiler.entities": null }); 
 	}
 
 	/**
