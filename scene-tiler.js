@@ -20,19 +20,6 @@ class SceneTiler {
 			"drawings" : { layer: "drawings"  , type: "drawings"  , className: "Drawing"          , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      }
 		}
 	}
-	static async copyScene(name) {
-		console.debug(`Copying: ${name}`);
-		const source = game.scenes.find(s => s.name == name);
-
-		if (!source) { 
-			console.debug("Source scene not found.");
-			return;
-		}
-
-		for (const def of Object.values(this.layerDefs)) {
-			await canvas[def.layer].createMany(source.data[def.type]);
-		}
-	}
 
 	static async dropCanvasData(canvas, { id, type, pack, x, y }) {
 		if (type != "Scene") return;
