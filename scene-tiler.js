@@ -21,6 +21,26 @@ class SceneTiler {
 		}
 	}
 
+	/**
+	 * @typedef  {object} dropData - A set of data generated when dropping something onto the scene
+	 * @property {string} id       - The ID of the entity that was dropped
+	 * @property {string} type     - The type of entity that was dropped
+	 * @property {string} pack     - If from a compendium, the name of the pack
+	 * @property {number} x        - The X coodinate of the location where the scene was dropped
+	 * @property {number} y        - The Y coodinate of the location where the scene was dropped
+	 *//**
+	 *
+	 * Handles the dropCanvasData Hook
+	 *
+	 * If the data is a scene, determin the UUID of it, and retrieve its data.
+	 * Then, create a tile from that data. 
+	 *
+	 * @static
+	 * @param {object} canvas
+	 * @param {dropData} options
+	 * @return {*} 
+	 * @memberof SceneTiler
+	 */
 	static async dropCanvasData(canvas, { id, type, pack, x, y }) {
 		if (type != "Scene") return;
 		
