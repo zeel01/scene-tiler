@@ -55,31 +55,60 @@ class SceneTiler {
 		}
 	}
 
+	/**
+	 * Creates a tile on the scene to be used as a controller for the Scene Tiler functionality.
+	 *
+	 * This tile is created using the bacground image of the source scene, or a blank image if non provided.
+	 * The dimensions of the tile are then scaled to compensate for differences in scene grid size,
+	 * and then the position of the tile is adjusted to account for a change in size.
+	 *
+	 * @static
+	 * @param {object} source - The scene from which this tile is created, and from which data will be pulled
+	 * @param {string} uuid   - The UUID of the source scene.
+	 * @param {number} x      - The X coodinate of the location where the scene was dropped
+	 * @param {number} y      - The Y coodinate of the location where the scene was dropped
+	 * @return {object}         The data of the tile that was created
+	 * @memberof SceneTiler
+	 */
 	static async createTile(source, uuid, x, y) {
-		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
-		
-		const data = {
+		return await canvas.scene.createEmbeddedEntity("Tile", {
 			img: source.img || "modules/scene-tiler/_Blank.png",
-			type: "Tile",
-			tileSize: canvas.scene.data.grid,
-			x, y,
-			flags: {
-				"scene-tiler": { scene: uuid } 
-			}
-		}
+			flags: { 
+				"scene-tiler": { scene: uuid }
+			},
+			...this.getTilePos(source, x, y)
+		});
+	}
 
-		const event = { shiftKey: false, altKey: false};
-		const tile  = await canvas.tiles._onDropTileData(event, data);
+	/**
+	 * Determin the size and location of the tile.
+	 *
+	 * @static
+	 * @param {object} source - The scene from which the tile is being created
+	 * @param {number} x      - The X coodinate of the location where the scene was dropped
+	 * @param {number} y      - The Y coodinate of the location where the scene was dropped
+	 * @return {{
+	 *     width: number,
+	 *     height: number,
+	 *     x: number,
+	 *     y: number
+	 * }}                       The width, height, and coordinates of the tile
+	 * 
+	 * @memberof SceneTiler
+	 */
+	static getTilePos(source, x, y) {
+		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
 
 		const  width = source.width  * scale,
 		      height = source.height * scale;
-		           x = (x - width  / 2);
-		           y = (y - height / 2);
+		           x = x - width  / 2;
+		           y = y - height / 2;
 
-		await tile.update({	width, height, x, y });
+		if (!canvas.grid.hitArea.contains(x, y)) x = y = 0;
 
-		return tile;
+		return { width, height, ...canvas.grid.getSnappedPosition(x, y) };
 	}
+
 	static async placeAllFromSceneAt(source, tileData) {
 		const flagData = {};
 		const createdItems = {};
