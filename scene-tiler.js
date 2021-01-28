@@ -62,7 +62,7 @@ class SceneTiler {
 		
 		return this.createTile(source, uuid, x, y);
 	}
-	static async updateTile(scene, tileData, update, options) {
+	static async preUpdateTile(scene, tileData, update, options) {
 		if (typeof update?.locked == "undefined") return;
 		const uuid = tileData.flags["scene-tiler"]?.scene;
 
@@ -246,4 +246,4 @@ class SceneTiler {
 }
 
 Hooks.on("dropCanvasData", (...args) => SceneTiler.dropCanvasData(...args));
-Hooks.on("updateTile", (...args) => SceneTiler.updateTile(...args));
+Hooks.on("preUpdateTile", (...args) => SceneTiler.preUpdateTile(...args));
