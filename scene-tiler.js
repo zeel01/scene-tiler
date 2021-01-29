@@ -7,7 +7,7 @@ class SceneTiler {
 	 * @static
 	 * @memberof SceneTiler
 	 */
-	static get TRNS() { return STEntityTranslators; }
+	static get Translators() { return STEntityTranslators; }
 
 	/** 
 	 * @typedef {object} LayerDef
@@ -26,14 +26,14 @@ class SceneTiler {
 	 */
 	static get layerDefs() {
 		return {
-			"tokens"   : { layer: "tokens"    , type: "tokens"    , className: "Token"            , translator: this.TRNS.translatePointWidthGrids.bind(this.TRNS) },
-			"tiles"    : { layer: "tiles"     , type: "tiles"     , className: "Tile"             , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      },
-			"lights"   : { layer: "lighting"  , type: "lights"    , className: "AmbientLight"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"sounds"   : { layer: "sounds"    , type: "sounds"    , className: "AmbientSound"     , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"notes"    : { layer: "notes"     , type: "notes"     , className: "Note"             , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"walls"    : { layer: "walls"     , type: "walls"     , className: "Wall"             , translator: this.TRNS.translateWall.bind(this.TRNS)            },
-			"templates": { layer: "templates" , type: "templates" , className: "MeasuredTemplate" , translator: this.TRNS.translatePoint.bind(this.TRNS)           },
-			"drawings" : { layer: "drawings"  , type: "drawings"  , className: "Drawing"          , translator: this.TRNS.translatePointWidth.bind(this.TRNS)      }
+			"tokens"   : { layer: "tokens"    , type: "tokens"    , className: "Token"            , translator: this.Translators.translatePointWidthGrids.bind(this.Translators) },
+			"tiles"    : { layer: "tiles"     , type: "tiles"     , className: "Tile"             , translator: this.Translators.translatePointWidth.bind(this.Translators)      },
+			"lights"   : { layer: "lighting"  , type: "lights"    , className: "AmbientLight"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"sounds"   : { layer: "sounds"    , type: "sounds"    , className: "AmbientSound"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"notes"    : { layer: "notes"     , type: "notes"     , className: "Note"             , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"walls"    : { layer: "walls"     , type: "walls"     , className: "Wall"             , translator: this.Translators.translateWall.bind(this.Translators)            },
+			"templates": { layer: "templates" , type: "templates" , className: "MeasuredTemplate" , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"drawings" : { layer: "drawings"  , type: "drawings"  , className: "Drawing"          , translator: this.Translators.translatePointWidth.bind(this.Translators)      }
 		}
 	}
 
@@ -320,7 +320,7 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static getScaleFactor(source, target) {
-		return this.TRNS.calculateScaleFactor(source.grid, target.grid);
+		return this.Translators.calculateScaleFactor(source.grid, target.grid);
 	}
 }
 
