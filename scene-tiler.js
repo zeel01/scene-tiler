@@ -169,10 +169,13 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static async clearSceneTile(data) {
+		const flags = data.flags["scene-tiler"];
+		if (!flags?.entities) return;
+
 		for (const def of this.layers) {
-			const entities = data.flags["scene-tiler"].entities[def.type];
+			const entities = flags.entities[def.type];
 			if (!entities) continue;
-			await canvas[def.layer].deleteMany(entities);
+			await canvas[def.layer].deleteMany(entities); 
 		}
 		await canvas.tiles.get(data._id).update({ "flags.scene-tiler.entities": null }); 
 	}
