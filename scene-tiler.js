@@ -1,3 +1,28 @@
+/**
+ * The data representing some placeable object
+ * 
+ * @typedef {Object<string, any>} ObjectData
+ *//**
+ * A set of placeable object data sorted by layer
+ * @typedef {{
+ *     Token?:            ObjectData[],
+ *     Tile?:             ObjectData[],
+ *     AmbientLight?:     ObjectData[],
+ *     AmbientSound?:     ObjectData[],
+ *     Note?:             ObjectData[],
+ *     Wall?:             ObjectData[],
+ *     MeasuredTemplate?: ObjectData[],
+ *     Drawing?:          ObjectData[],
+ * }} ObjectsData
+ */
+
+
+/**
+ * Creates tiles by dragging and dropping a scene onto another scene, 
+ * then populates the tile with placeables from the source scene.
+ *
+ * @class SceneTiler
+ */
 class SceneTiler {
 	/**
 	 * An alias for the Entity Translator class
@@ -72,9 +97,9 @@ class SceneTiler {
 	 * Then, create a tile from that data. 
 	 *
 	 * @static
-	 * @param {Object} canvas
-	 * @param {dropData} options
-	 * @return {*} 
+	 * @param {Object} canvas    - The PIXI canvas
+	 * @param {dropData} options - Options assocaiated with this data drop
+	 * @return {Object|void}       The created tile, or returns early if not dropping  a Scene or if the source isn't found
 	 * @memberof SceneTiler
 	 */
 	static async dropCanvasData(canvas, { id, type, pack, x, y }) {
@@ -102,10 +127,10 @@ class SceneTiler {
 	 * If the scene is being locked, deploy the scene tile, otherwise clear it
 	 *
 	 * @static
-	 * @param {Object} scene    - The scene in which the tile is being updated
-	 * @param {Object} tileData - The data from the tile that is being update
-	 * @param {Object} update   - The data that is being updated
-	 * @return {void}             Return early if this is not a lock/unlock update
+	 * @param {Object} scene        - The scene in which the tile is being updated
+	 * @param {ObjectData} tileData - The data from the tile that is being update
+	 * @param {Object} update       - The data that is being updated
+	 * @return {void}                 Return early if this is not a lock/unlock update
 	 * @memberof SceneTiler
 	 */
 	static async preUpdateTile(scene, tileData, update) {
@@ -121,8 +146,8 @@ class SceneTiler {
 	 * Then get the data from the source, and place the objects from it if it exists
 	 *
 	 * @static
-	 * @param {Object} data    - The data from the tile that is being update
-	 * @return {Promise<void>}   Return early if the UUID doesn't retrieve a source scene 
+	 * @param {ObjectData} data - The data from the tile that is being update
+	 * @return {Promise<void>}    Return early if the UUID doesn't retrieve a source scene 
 	 * @memberof SceneTiler
 	 */
 	static async deploySceneTile(data) {
@@ -140,7 +165,7 @@ class SceneTiler {
 	 * then set the flag for entities to null
 	 *
 	 * @static
-	 * @param {Object} data    - The data from the tile that is being update
+	 * @param {ObjectData} data - The data from the tile that is being update
 	 * @memberof SceneTiler
 	 */
 	static async clearSceneTile(data) {
@@ -164,7 +189,7 @@ class SceneTiler {
 	 * @param {String} uuid   - The UUID of the source scene.
 	 * @param {Number} x      - The X coodinate of the location where the scene was dropped
 	 * @param {Number} y      - The Y coodinate of the location where the scene was dropped
-	 * @return {Object}         The data of the tile that was created
+	 * @return {ObjectData}     The data of the tile that was created
 	 * @memberof SceneTiler
 	 */
 	static async createTile(source, uuid, x, y) {
@@ -182,9 +207,9 @@ class SceneTiler {
 	 * and translating their position, scale, and angle to match a tile.
 	 *
 	 * @static
-	 * @param {Object} source    - The data of the source scene
-	 * @param {objects} tileData - The data of the background tile in the target scene
-	 * @return {void}              Return early if a handler of the preCreatePlaceableObjects hook reponds with a false
+	 * @param {Object} source       - The data of the source scene
+	 * @param {ObjectData} tileData - The data of the background tile in the target scene
+	 * @return {void}                 Return early if a handler of the preCreatePlaceableObjects hook reponds with a false
 	 * @memberof SceneTiler
 	 */
 	static async placeAllFromSceneAt(source, tileData) {
@@ -208,8 +233,8 @@ class SceneTiler {
 	 * in the data create them, maintaining a list of all created object data.
 	 *
 	 * @static
-	 * @param {Object} objects - The data for objects to create
-	 * @return {Object}          The data of objects that have been created
+	 * @param {ObjectsData} objects - The data for objects to create
+	 * @return {ObjectsData}          The data of objects that have been created
 	 * @memberof SceneTiler
 	 */
 	static async createObjects(objects) {
@@ -229,8 +254,8 @@ class SceneTiler {
 	 * Strips out just the IDs of a set of objects
 	 *
 	 * @static
-	 * @param {Object} objects - The data for objects to get the IDs of
-	 * @return {Object}          The IDs of all the objects sorted by layer
+	 * @param {ObjectsData} objects - The data for objects to get the IDs of
+	 * @return {Object}               The IDs of all the objects sorted by layer
 	 * @memberof SceneTiler
 	 */
 	static getObjectIds(objects) {
@@ -246,9 +271,9 @@ class SceneTiler {
 	 * Gets a set of prepared object data
 	 *
 	 * @static
-	 * @param {Object} source - The data of the scene from which to obtain the object data
-	 * @param {Object} tile   - The data of the tile onto which to map the objects
-	 * @return {Object}         The data of the objects
+	 * @param {Object} source     - The data of the scene from which to obtain the object data
+	 * @param {ObjectData} tile   - The data of the tile onto which to map the objects
+	 * @return {ObjectsData}        The data of the objects
 	 * @memberof SceneTiler
 	 */
 	static getObjects(source, tile) {
@@ -271,9 +296,9 @@ class SceneTiler {
 	 * @static
 	 * @param {Object} source                 - The data of the scene from which to obtain the object data
 	 * @param {String} type                   - The type name of the object
-	 * @param {Object} tile                   - The data of the tile onto which to map the objects
+	 * @param {ObjectData} tile               - The data of the tile onto which to map the objects
 	 * @param {[Number, Number, Number]} spxy - The scalefactor and padding x, and padding y of the source 
-	 * @return {Object[]}                       The set of prepared object data
+	 * @return {ObjectData[]}                   The set of prepared object data
 	 * @memberof SceneTiler
 	 */
 	static prepareObjects(source, type, tile, ...spxy) {
