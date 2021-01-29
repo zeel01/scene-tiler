@@ -172,7 +172,7 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static getTilePos(source, x, y) {
-		const scale = this.TRNS.getScaleFactor(source.grid, canvas.scene.data.grid);
+		const scale = this.getScaleFactor(source, canvas.scene.data);
 
 		const  width = source.width  * scale,
 		      height = source.height * scale;
@@ -193,7 +193,7 @@ class SceneTiler {
 		const py = Math.ceil(source.height / grid * padding) * grid;
 
 		/** @type {number} The ratio of grid size between source and target scenes */
-		const scale = this.TRNS.getScaleFactor(grid, canvas.scene.data.grid);
+		const scale = this.getScaleFactor(source, canvas.scene.data);
 
 		let TA = false;
 
@@ -308,6 +308,19 @@ class SceneTiler {
 				tile.rotation, scale, px, py, entity.c );
 		entity.c = d;
 		return entity;
+	}
+
+	/**
+	 * Calculates the scale ratio between source and target scenes
+	 *
+	 * @static
+	 * @param {object} source      - Scene data from which objects are coming
+	 * @param {object} target      - Scene data to which objects are going
+	 * @return {number}            - The ratio as a decimal of the grid sizes
+	 * @memberof SceneTiler
+	 */
+	static getScaleFactor(source, target) {
+		return this.TRNS.calculateScaleFactor(source.grid, target.grid);
 	}
 }
 

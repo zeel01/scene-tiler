@@ -192,7 +192,7 @@ class STEntityTranslators {
 	 * @return {number}            - The ratio as a decimal of the grid sizes
 	 * @memberof STEntityTranslators
 	 */
-	static getScaleFactor(source, destination) {
+	static calculateScaleFactor(source, destination) {
 		return destination / source;
 	}
 }
