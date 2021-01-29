@@ -20,11 +20,11 @@ class SceneTiler {
 	static get Helpers() { return SceneTilerHelpers; }
 
 	/** 
-	 * @typedef {object} LayerDef
-	 * @property {string} layer        - The name of the canvas layer for this entity type
-	 * @property {string} type         - The name of the type of this entity
-	 * @property {string} className    - The Class name of this Entity subclass
-	 * @property {function} translator - A function that can handle translating the position of this entity
+	 * @typedef {Object} LayerDef
+	 * @property {String} layer        - The name of the canvas layer for this entity type
+	 * @property {String} type         - The name of the type of this entity
+	 * @property {String} className    - The Class name of this Entity subclass
+	 * @property {Function} translator - A function that can handle translating the position of this entity
 	 *//**
 	 *
 	 * A mapping of layer, type, and class names for each canvas layer, plus translation functions.
@@ -58,12 +58,12 @@ class SceneTiler {
 	static get layers() { return Object.values(this.layerDefs); }
 
 	/**
-	 * @typedef  {object} dropData - A set of data generated when dropping something onto the scene
-	 * @property {string} id       - The ID of the entity that was dropped
-	 * @property {string} type     - The type of entity that was dropped
-	 * @property {string} pack     - If from a compendium, the name of the pack
-	 * @property {number} x        - The X coodinate of the location where the scene was dropped
-	 * @property {number} y        - The Y coodinate of the location where the scene was dropped
+	 * @typedef  {Object} dropData - A set of data generated when dropping something onto the scene
+	 * @property {String} id       - The ID of the entity that was dropped
+	 * @property {String} type     - The type of entity that was dropped
+	 * @property {String} pack     - If from a compendium, the name of the pack
+	 * @property {Number} x        - The X coodinate of the location where the scene was dropped
+	 * @property {Number} y        - The Y coodinate of the location where the scene was dropped
 	 *//**
 	 *
 	 * Handles the dropCanvasData Hook
@@ -72,7 +72,7 @@ class SceneTiler {
 	 * Then, create a tile from that data. 
 	 *
 	 * @static
-	 * @param {object} canvas
+	 * @param {Object} canvas
 	 * @param {dropData} options
 	 * @return {*} 
 	 * @memberof SceneTiler
@@ -102,9 +102,9 @@ class SceneTiler {
 	 * If the scene is being locked, deploy the scene tile, otherwise clear it
 	 *
 	 * @static
-	 * @param {object} scene    - The scene in which the tile is being updated
-	 * @param {object} tileData - The data from the tile that is being update
-	 * @param {object} update   - The data that is being updated
+	 * @param {Object} scene    - The scene in which the tile is being updated
+	 * @param {Object} tileData - The data from the tile that is being update
+	 * @param {Object} update   - The data that is being updated
 	 * @return {void}             Return early if this is not a lock/unlock update
 	 * @memberof SceneTiler
 	 */
@@ -121,7 +121,7 @@ class SceneTiler {
 	 * Then get the data from the source, and place the objects from it if it exists
 	 *
 	 * @static
-	 * @param {object} data    - The data from the tile that is being update
+	 * @param {Object} data    - The data from the tile that is being update
 	 * @return {Promise<void>}   Return early if the UUID doesn't retrieve a source scene 
 	 * @memberof SceneTiler
 	 */
@@ -140,7 +140,7 @@ class SceneTiler {
 	 * then set the flag for entities to null
 	 *
 	 * @static
-	 * @param {object} data    - The data from the tile that is being update
+	 * @param {Object} data    - The data from the tile that is being update
 	 * @memberof SceneTiler
 	 */
 	static async clearSceneTile(data) {
@@ -160,11 +160,11 @@ class SceneTiler {
 	 * and then the position of the tile is adjusted to account for a change in size.
 	 *
 	 * @static
-	 * @param {object} source - The scene from which this tile is created, and from which data will be pulled
-	 * @param {string} uuid   - The UUID of the source scene.
-	 * @param {number} x      - The X coodinate of the location where the scene was dropped
-	 * @param {number} y      - The Y coodinate of the location where the scene was dropped
-	 * @return {object}         The data of the tile that was created
+	 * @param {Object} source - The scene from which this tile is created, and from which data will be pulled
+	 * @param {String} uuid   - The UUID of the source scene.
+	 * @param {Number} x      - The X coodinate of the location where the scene was dropped
+	 * @param {Number} y      - The Y coodinate of the location where the scene was dropped
+	 * @return {Object}         The data of the tile that was created
 	 * @memberof SceneTiler
 	 */
 	static async createTile(source, uuid, x, y) {
@@ -182,7 +182,7 @@ class SceneTiler {
 	 * and translating their position, scale, and angle to match a tile.
 	 *
 	 * @static
-	 * @param {object} source    - The data of the source scene
+	 * @param {Object} source    - The data of the source scene
 	 * @param {objects} tileData - The data of the background tile in the target scene
 	 * @return {void}              Return early if a handler of the preCreatePlaceableObjects hook reponds with a false
 	 * @memberof SceneTiler
@@ -208,8 +208,8 @@ class SceneTiler {
 	 * in the data create them, maintaining a list of all created object data.
 	 *
 	 * @static
-	 * @param {object} objects - The data for objects to create
-	 * @return {object}          The data of objects that have been created
+	 * @param {Object} objects - The data for objects to create
+	 * @return {Object}          The data of objects that have been created
 	 * @memberof SceneTiler
 	 */
 	static async createObjects(objects) {
@@ -229,8 +229,8 @@ class SceneTiler {
 	 * Strips out just the IDs of a set of objects
 	 *
 	 * @static
-	 * @param {object} objects - The data for objects to get the IDs of
-	 * @return {object}          The IDs of all the objects sorted by layer
+	 * @param {Object} objects - The data for objects to get the IDs of
+	 * @return {Object}          The IDs of all the objects sorted by layer
 	 * @memberof SceneTiler
 	 */
 	static getObjectIds(objects) {
@@ -246,16 +246,16 @@ class SceneTiler {
 	 * Gets a set of prepared object data
 	 *
 	 * @static
-	 * @param {object} source - The data of the scene from which to obtain the object data
-	 * @param {object} tile   - The data of the tile onto which to map the objects
-	 * @return {object}         The data of the objects
+	 * @param {Object} source - The data of the scene from which to obtain the object data
+	 * @param {Object} tile   - The data of the tile onto which to map the objects
+	 * @return {Object}         The data of the objects
 	 * @memberof SceneTiler
 	 */
 	static getObjects(source, tile) {
 		const objects = {};
 		const [px, py] = this.Helpers.getPadding(source);
 
-		/** @type {number} The ratio of grid size between source and target scenes */
+		/** @type {Number} The ratio of grid size between source and target scenes */
 		const scale = this.Helpers.getScaleFactor(source, canvas.scene.data);
 
 		for (const def of this.layers) {
@@ -269,11 +269,11 @@ class SceneTiler {
 	 * Prepares the data of an object, translated, rotated, and scaled to fit the target scene and tile
 	 *
 	 * @static
-	 * @param {object} source                 - The data of the scene from which to obtain the object data
-	 * @param {string} type                   - The type name of the object
-	 * @param {object} tile                   - The data of the tile onto which to map the objects
-	 * @param {[number, number, number]} spxy - The scalefactor and padding x, and padding y of the source 
-	 * @return {object[]}                       The set of prepared object data
+	 * @param {Object} source                 - The data of the scene from which to obtain the object data
+	 * @param {String} type                   - The type name of the object
+	 * @param {Object} tile                   - The data of the tile onto which to map the objects
+	 * @param {[Number, Number, Number]} spxy - The scalefactor and padding x, and padding y of the source 
+	 * @return {Object[]}                       The set of prepared object data
 	 * @memberof SceneTiler
 	 */
 	static prepareObjects(source, type, tile, ...spxy) {
@@ -292,19 +292,19 @@ class SceneTiler {
 	 *
 	 * @static
 	 * @param {Entity} entity - The entity of the object being translated
-	 * @param {string} type   - The entity type of the entity
+	 * @param {String} type   - The entity type of the entity
 	 * @param {Tile} tile     - The tile used as a positional reference point
-	 * @param {number} scale  - The ratio of grid size between source and target scenes
-	 * @param {number} px     - The amount of scene padding in the X axis
-	 * @param {number} py     - The amount of scene padding in the Y axis
+	 * @param {Number} scale  - The ratio of grid size between source and target scenes
+	 * @param {Number} px     - The amount of scene padding in the X axis
+	 * @param {Number} py     - The amount of scene padding in the Y axis
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
 	static translateEntity(entity, type, tile, scale, px, py) {
-		/** @type {number} The X coordinate of the center of the tile */
+		/** @type {Number} The X coordinate of the center of the tile */
 		const cx = tile.x + tile.width / 2;
 
-		/** @type {number} The Y coordinate of the center of the tile */
+		/** @type {Number} The Y coordinate of the center of the tile */
 		const cy = tile.y + tile.height / 2;
 
 		if (type == this.layerDefs.walls.type)
@@ -320,13 +320,13 @@ class SceneTiler {
 	 *
 	 * @static
 	 * @param {Entity} entity - The entity of the object being translated
-	 * @param {string} type   - The entity type of the entity
+	 * @param {String} type   - The entity type of the entity
 	 * @param {Tile} tile     - The tile used as a positional reference point
-	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
-	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
-	 * @param {number} scale  - The ratio of grid size between source and target scenes
-	 * @param {number} px     - The amount of scene padding in the X axis
-	 * @param {number} py     - The amount of scene padding in the Y axis
+	 * @param {Number} cx     - The center X coordinate of the tile, used for rotation
+	 * @param {Number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @param {Number} scale  - The ratio of grid size between source and target scenes
+	 * @param {Number} px     - The amount of scene padding in the X axis
+	 * @param {Number} py     - The amount of scene padding in the Y axis
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
@@ -357,11 +357,11 @@ class SceneTiler {
 	 * @static
 	 * @param {Entity} entity - The entity of the object being translated
 	 * @param {Tile} tile     - The tile used as a positional reference point
-	 * @param {number} cx     - The center X coordinate of the tile, used for rotation
-	 * @param {number} cy     - The center Y coordinate of the tile, used for rotation
-	 * @param {number} scale  - The ratio of grid size between source and target scenes
-	 * @param {number} px     - The amount of scene padding in the X axis
-	 * @param {number} py     - The amount of scene padding in the Y axis
+	 * @param {Number} cx     - The center X coordinate of the tile, used for rotation
+	 * @param {Number} cy     - The center Y coordinate of the tile, used for rotation
+	 * @param {Number} scale  - The ratio of grid size between source and target scenes
+	 * @param {Number} px     - The amount of scene padding in the X axis
+	 * @param {Number} py     - The amount of scene padding in the Y axis
 	 * @return {Entity}       - The original entity, now modified
 	 * @memberof SceneTiler
 	 */

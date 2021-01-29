@@ -8,11 +8,11 @@ class STEntityTranslators {
 	 * Translate a point x, y to a new point using the offset ox, oy
 	 *
 	 * @static
-	 * @param {number} ox       - The offset X coordinate
-	 * @param {number} oy       - The offset Y coordinate
-	 * @param {number} x        - The pre-translation X coordinate
-	 * @param {number} y        - The pre-translation Y coordinate
-	 * @return {[number, number]} The translated point 
+	 * @param {Number} ox       - The offset X coordinate
+	 * @param {Number} oy       - The offset Y coordinate
+	 * @param {Number} x        - The pre-translation X coordinate
+	 * @param {Number} y        - The pre-translation Y coordinate
+	 * @return {[Number, Number]} The translated point 
 	 * @memberof STEntityTranslators
 	 */
 	static translate(ox, oy, x, y) {
@@ -23,10 +23,10 @@ class STEntityTranslators {
 	 * Scale point x, y to match a new grid size.
 	 *
 	 * @static
-	 * @param {number} x        - The pre-scaling X coordinate
-	 * @param {number} y        - The pre-scaling Y coordinate
-	 * @param {number} scale    - The ratio of grid size between source and target scenes
-	 * @return {[number, number]} The scaled coordinate
+	 * @param {Number} x        - The pre-scaling X coordinate
+	 * @param {Number} y        - The pre-scaling Y coordinate
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @return {[Number, Number]} The scaled coordinate
 	 * @memberof STEntityTranslators
 	 */
 	static scale(x, y, scale) {
@@ -38,17 +38,17 @@ class STEntityTranslators {
 	 * and rotate around the point cy, cy
 	 *
 	 * @static
-	 * @param {number} ox       - The offset X coordinate
-	 * @param {number} oy       - The offset Y coordinate
-	 * @param {number} x        - The pre-translation X coordinate
-	 * @param {number} y        - The pre-translation Y coordinate
-	 * @param {number} cx       - The X cordinate of the rotation center
-	 * @param {number} cy       - The Y coordinate of the rotation center
-	 * @param {number} angle    - The angle of the rotation
-	 * @param {number} scale    - The ratio of grid size between source and target scenes
-	 * @param {number} px       - The amount of scene padding in the X axis
-	 * @param {number} py       - The amount of scene padding in the Y axis	 
-	 * @return {[number, number]} The translated and rotated point
+	 * @param {Number} ox       - The offset X coordinate
+	 * @param {Number} oy       - The offset Y coordinate
+	 * @param {Number} x        - The pre-translation X coordinate
+	 * @param {Number} y        - The pre-translation Y coordinate
+	 * @param {Number} cx       - The X cordinate of the rotation center
+	 * @param {Number} cy       - The Y coordinate of the rotation center
+	 * @param {Number} angle    - The angle of the rotation
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @param {Number} px       - The amount of scene padding in the X axis
+	 * @param {Number} py       - The amount of scene padding in the Y axis	 
+	 * @return {[Number, Number]} The translated and rotated point
 	 * @memberof STEntityTranslators
 	 */
 	static translatePoint(ox, oy, x, y, cx, cy, angle, scale, px, py) {
@@ -69,26 +69,26 @@ class STEntityTranslators {
 	 * the center point. Finally, calculate the new corner point.
 	 *
 	 * @static
-	 * @param {number} ox       - The offset X coordinate
-	 * @param {number} oy       - The offset Y coordinate
-	 * @param {number} x        - The pre-translation X coordinate
-	 * @param {number} y        - The pre-translation Y coordinate
-	 * @param {number} cx       - The X cordinate of the rotation center
-	 * @param {number} cy       - The Y coordinate of the rotation center
-	 * @param {number} angle    - The angle of the rotation
-	 * @param {number} scale    - The ratio of grid size between source and target scenes
-	 * @param {number} px       - The amount of scene padding in the X axis
-	 * @param {number} py       - The amount of scene padding in the Y axis	 
-	 * @param {number} w        - The width of the object
-	 * @param {number} h        - The height of the object
-	 * @return {[number, number]} The translated and rotated point
+	 * @param {Number} ox       - The offset X coordinate
+	 * @param {Number} oy       - The offset Y coordinate
+	 * @param {Number} x        - The pre-translation X coordinate
+	 * @param {Number} y        - The pre-translation Y coordinate
+	 * @param {Number} cx       - The X cordinate of the rotation center
+	 * @param {Number} cy       - The Y coordinate of the rotation center
+	 * @param {Number} angle    - The angle of the rotation
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @param {Number} px       - The amount of scene padding in the X axis
+	 * @param {Number} py       - The amount of scene padding in the Y axis	 
+	 * @param {Number} w        - The width of the object
+	 * @param {Number} h        - The height of the object
+	 * @return {[Number, Number]} The translated and rotated point
 	 * @memberof STEntityTranslators
 	 */
 	static translatePointWidth(ox, oy, x, y, cx, cy, angle, scale, px, py, w, h) {
-		/** @type {number} Middle X coordinate */
+		/** @type {Number} Middle X coordinate */
 		const mx = x + w / 2;
 
-		/** @type {number} Middle Y coordinate */
+		/** @type {Number} Middle Y coordinate */
 		const my = y + h / 2;
 
 		[x, y] = this.translatePoint(ox, oy, mx, my, cx, cy, angle, scale, px, py);
@@ -104,19 +104,19 @@ class STEntityTranslators {
 	 * real width/height by scaling by the scene grid size.
 	 *
 	 * @static
-	 * @param {number} ox       - The offset X coordinate
-	 * @param {number} oy       - The offset Y coordinate
-	 * @param {number} x        - The pre-translation X coordinate
-	 * @param {number} y        - The pre-translation Y coordinate
-	 * @param {number} cx       - The X cordinate of the rotation center
-	 * @param {number} cy       - The Y coordinate of the rotation center
-	 * @param {number} angle    - The angle of the rotation
-	 * @param {number} scale    - The ratio of grid size between source and target scenes
-	 * @param {number} px       - The amount of scene padding in the X axis
-	 * @param {number} py       - The amount of scene padding in the Y axis	 
-	 * @param {number} w        - The width of the object
-	 * @param {number} h        - The height of the object
-	 * @return {[number, number]} The translated and rotated point
+	 * @param {Number} ox       - The offset X coordinate
+	 * @param {Number} oy       - The offset Y coordinate
+	 * @param {Number} x        - The pre-translation X coordinate
+	 * @param {Number} y        - The pre-translation Y coordinate
+	 * @param {Number} cx       - The X cordinate of the rotation center
+	 * @param {Number} cy       - The Y coordinate of the rotation center
+	 * @param {Number} angle    - The angle of the rotation
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @param {Number} px       - The amount of scene padding in the X axis
+	 * @param {Number} py       - The amount of scene padding in the Y axis	 
+	 * @param {Number} w        - The width of the object
+	 * @param {Number} h        - The height of the object
+	 * @return {[Number, Number]} The translated and rotated point
 	 * @memberof STEntityTranslators
 	 */
 	static translatePointWidthGrids(ox, oy, x, y, cx, cy, angle, scale, px, py, w, h) {
@@ -136,20 +136,20 @@ class STEntityTranslators {
 	 * then placed in a new array d. The new array is returned.
 	 *
 	 * @static
-	 * @param {number} ox       - The offset X coordinate
-	 * @param {number} oy       - The offset Y coordinate
-	 * @param {number} cx       - The X cordinate of the rotation center
-	 * @param {number} cy       - The Y coordinate of the rotation center
-	 * @param {number} angle    - The angle of the rotation
-	 * @param {number} scale    - The ratio of grid size between source and target scenes
-	 * @param {number} px       - The amount of scene padding in the X axis
-	 * @param {number} py       - The amount of scene padding in the Y axis	 
-	 * @param {number[]} c      - The array of wall point coordinates
-	 * @return {number[]}       - The translated array of coordinates
+	 * @param {Number} ox       - The offset X coordinate
+	 * @param {Number} oy       - The offset Y coordinate
+	 * @param {Number} cx       - The X cordinate of the rotation center
+	 * @param {Number} cy       - The Y coordinate of the rotation center
+	 * @param {Number} angle    - The angle of the rotation
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @param {Number} px       - The amount of scene padding in the X axis
+	 * @param {Number} py       - The amount of scene padding in the Y axis	 
+	 * @param {Number[]} c      - The array of wall point coordinates
+	 * @return {Number[]}       - The translated array of coordinates
 	 * @memberof STEntityTranslators
 	 */
 	static translateWall(ox, oy, cx, cy, angle, scale, px, py, c) {
-		/** @type {number[]} An array to store the translated coordinates in as they are calcualted */
+		/** @type {Number[]} An array to store the translated coordinates in as they are calcualted */
 		const d = [];
 
 		for (let i = 0; i < c.length; i += 2) {
@@ -166,12 +166,12 @@ class STEntityTranslators {
 	 * Rotates the point x, y around the point cx, cy by the given angle.
 	 *
 	 * @static
-	 * @param {number} x        - The pre-rotation X coordinate
-	 * @param {number} y        - The pre-rotation Y coordinate
-	 * @param {number} cx       - The X cordinate of the rotation center
-	 * @param {number} cy       - The Y coordinate of the rotation center
-	 * @param {number} angle    - The angle of the rotation
-	 * @return {[number, number]} The rotated point
+	 * @param {Number} x        - The pre-rotation X coordinate
+	 * @param {Number} y        - The pre-rotation Y coordinate
+	 * @param {Number} cx       - The X cordinate of the rotation center
+	 * @param {Number} cy       - The Y coordinate of the rotation center
+	 * @param {Number} angle    - The angle of the rotation
+	 * @return {[Number, Number]} The rotated point
 	 * @memberof STEntityTranslators
 	 */
 	static rotate(cx, cy, x, y, angle) {
@@ -187,9 +187,9 @@ class STEntityTranslators {
 	 * Calculates the scale ratio between source and destination
 	 *
 	 * @static
-	 * @param {number} source      - Grid size of source scene
-	 * @param {number} destination - Grid size of destination scene
-	 * @return {number}            - The ratio as a decimal of the grid sizes
+	 * @param {Number} source      - Grid size of source scene
+	 * @param {Number} destination - Grid size of destination scene
+	 * @return {Number}            - The ratio as a decimal of the grid sizes
 	 * @memberof STEntityTranslators
 	 */
 	static calculateScaleFactor(source, destination) {
