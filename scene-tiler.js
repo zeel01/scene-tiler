@@ -145,7 +145,9 @@ class SceneTiler {
 	 */
 	static async clearSceneTile(data) {
 		for (const def of this.layers) {
-			await canvas[def.layer].deleteMany(data.flags["scene-tiler"].entities[def.type]);
+			const entities = data.flags["scene-tiler"].entities[def.type];
+			if (!entities) continue;
+			await canvas[def.layer].deleteMany(entities);
 		}
 		await canvas.tiles.get(data._id).update({ "flags.scene-tiler.entities": null }); 
 	}
@@ -175,40 +177,111 @@ class SceneTiler {
 		});
 	}
 
+	/**
+	 * Creates objects in the target scene by duplicating objects from the source scene,
+	 * and translating their position, scale, and angle to match a tile.
+	 *
+	 * @static
+	 * @param {object} source    - The data of the source scene
+	 * @param {objects} tileData - The data of the background tile in the target scene
+	 * @return {void}              Return early if a handler of the preCreatePlaceableObjects hook reponds with a false
+	 * @memberof SceneTiler
+	 */
 	static async placeAllFromSceneAt(source, tileData) {
-		const flagData = {};
-		const createdItems = {};
+		const objects = this.getObjects(source, tileData);
+
+		if (Hooks.call("preCreatePlaceableObjects", canvas.scene, objects, {}, game.userId) === false) return;
+
+		const createdObjects = await this.createObjects(objects);
+
+		const flagData = this.getObjectIds(createdObjects);
 		
-		const padding = source.padding, grid = source.grid;
-		const px = Math.ceil(source.width / grid * padding) * grid;
-		const py = Math.ceil(source.height / grid * padding) * grid;
+		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
+		
+		Hooks.callAll("createPlaceableObjects", canvas.scene, createdObjects, {}, game.userId);
+	}
+
+	/**
+	 * Create all of the objects from the data given.
+	 *
+	 * Creating objects on multiple layers, on each layer if there are objects
+	 * in the data create them, maintaining a list of all created object data.
+	 *
+	 * @static
+	 * @param {object} objects - The data for objects to create
+	 * @return {object}          The data of objects that have been created
+	 * @memberof SceneTiler
+	 */
+	static async createObjects(objects) {
+		const createdObjects = {};
+		for (const def of this.layers) {
+			if (!objects[def.className]) continue;
+
+			let created = await canvas[def.layer].createMany(objects[def.className]) || [];
+			if (!Array.isArray(created)) created = [created];
+
+			if (created.length) createdObjects[def.className] = created;
+		}
+		return createdObjects;
+	}
+
+	/**
+	 * Strips out just the IDs of a set of objects
+	 *
+	 * @static
+	 * @param {object} objects - The data for objects to get the IDs of
+	 * @return {object}          The IDs of all the objects sorted by layer
+	 * @memberof SceneTiler
+	 */
+	static getObjectIds(objects) {
+		const ids = {};
+		for (const def of this.layers) {
+			if (!objects[def.className]) continue;
+			ids[def.type] = objects[def.className].map(e => e._id);
+		}
+		return ids;
+	}
+
+	/**
+	 * Gets a set of prepared object data
+	 *
+	 * @static
+	 * @param {object} source - The data of the scene from which to obtain the object data
+	 * @param {object} tile   - The data of the tile onto which to map the objects
+	 * @return {object}         The data of the objects
+	 * @memberof SceneTiler
+	 */
+	static getObjects(source, tile) {
+		const objects = {};
+		const [px, py] = this.Helpers.getPadding(source);
 
 		/** @type {number} The ratio of grid size between source and target scenes */
 		const scale = this.Helpers.getScaleFactor(source, canvas.scene.data);
 
-		let TA = false;
-
-		for (const def of Object.values(this.layerDefs)) {
-			const entities = source[def.type].map(entity => {
-				if (entity.flags["token-attacher"]) TA = true;
-				if (def.type == this.layerDefs.tiles.type) entity.z += tileData.z;
-
-				return this.translateEntity(entity, def.type, tileData, scale, px, py)
-			});
-			
-
-			let created = await canvas[def.layer].createMany(entities) || [];
-			if (!Array.isArray(created)) created = [created];
-
-			createdItems[def.className] = created;
-
-			const ids = created.map(e => e._id);
-			flagData[def.type] = ids;
+		for (const def of this.layers) {
+			const entities = this.prepareObjects(source, def.type, tile, scale, px, py);
+			if (entities.length) objects[def.className] = entities;
 		}
-		
-		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
-		
-		Hooks.callAll("createPlaceableObjects", canvas.scene, createdItems, {}, game.userId);
+		return objects;
+	}
+
+	/**
+	 * Prepares the data of an object, translated, rotated, and scaled to fit the target scene and tile
+	 *
+	 * @static
+	 * @param {object} source                 - The data of the scene from which to obtain the object data
+	 * @param {string} type                   - The type name of the object
+	 * @param {object} tile                   - The data of the tile onto which to map the objects
+	 * @param {[number, number, number]} spxy - The scalefactor and padding x, and padding y of the source 
+	 * @return {object[]}                       The set of prepared object data
+	 * @memberof SceneTiler
+	 */
+	static prepareObjects(source, type, tile, ...spxy) {
+		return source[type].map(entity => {
+			if (type == this.layerDefs.tiles.type) entity.z += tile.z;
+
+			return this.translateEntity(entity, type, tile, ...spxy);
+		});
 	}
 
 	/**

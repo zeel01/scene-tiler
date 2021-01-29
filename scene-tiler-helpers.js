@@ -52,6 +52,20 @@ class SceneTilerHelpers {
 
 		return { width, height, ...canvas.grid.getSnappedPosition(x, y) };
 	}
+
+	/**
+	 * Calculates the amount of padding in the x and y axis of the source Scene
+	 *
+	 * @static
+	 * @param {object} source     - The scene from which the padding is being calcualated
+	 * @return {[number, number]}   The x, y padding amounts
+	 * @memberof SceneTilerHelpers
+	 */
+	static getPadding(source) {
+		const padding = source.padding, grid = source.grid;
+		return [ Math.ceil(source.width  / grid * padding) * grid,
+		         Math.ceil(source.height / grid * padding) * grid ]
+	}
 }
 
 
