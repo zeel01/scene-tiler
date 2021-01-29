@@ -21,6 +21,9 @@ class SceneTilerHelpers {
 	 * @memberof SceneTilerHelpers
 	 */
 	static getScaleFactor(source, target) {
+		if (source.gridUnits != target.gridUnits)
+			ui.notifications.warn(game.i18n.localize("SCNTILE.notifications.warn.unmatchedUnits"));
+
 		const distScale = 
 			   STEntityTranslators.calculateScaleFactor(source.gridDistance, target.gridDistance)
 		return STEntityTranslators.calculateScaleFactor(source.grid, target.grid) / distScale;

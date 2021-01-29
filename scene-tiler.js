@@ -112,7 +112,7 @@ class SceneTiler {
 		const source = duplicate(await fromUuid(uuid));
 		
 		if (!source) { 
-			console.debug("Source scene not found.");
+			console.debug(game.i18n.localize("SCNTILE.console.debug.sceneNotFound"));
 			return;
 		}
 		
