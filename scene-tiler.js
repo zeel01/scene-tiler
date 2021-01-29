@@ -48,6 +48,16 @@ class SceneTiler {
 	}
 
 	/**
+	 * The layerDefs as an array
+	 *
+	 * @type {LayerDef[]}
+	 * @readonly
+	 * @static
+	 * @memberof SceneTiler
+	 */
+	static get layers() { return Object.values(this.layerDefs); }
+
+	/**
 	 * @typedef  {object} dropData - A set of data generated when dropping something onto the scene
 	 * @property {string} id       - The ID of the entity that was dropped
 	 * @property {string} type     - The type of entity that was dropped
@@ -134,7 +144,7 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static async clearSceneTile(data) {
-		for (const def of Object.values(this.layerDefs)) {
+		for (const def of this.layers) {
 			await canvas[def.layer].deleteMany(data.flags["scene-tiler"].entities[def.type]);
 		}
 		await canvas.tiles.get(data._id).update({ "flags.scene-tiler.entities": null }); 
@@ -248,8 +258,7 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static standardTranslate(entity, type, tile, cx, cy, scale, px, py) {
-		const [x, y, w, h] = Object.values(this.layerDefs)
-			.find(d => d.type == type)
+		const [x, y, w, h] = this.layers.find(d => d.type == type)
 			.translator( tile.x, tile.y, entity.x, entity.y, cx, cy,
 				tile.rotation, scale, px, py, entity.width, entity.height );
 		

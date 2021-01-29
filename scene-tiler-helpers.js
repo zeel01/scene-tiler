@@ -6,7 +6,7 @@ class SceneTilerHelpers {
 	 * @memberof SceneTiler
 	 */
 	static async clearScene() {
-		for (const def of Object.values(SceneTiler.layerDefs)) {
+		for (const def of SceneTiler.layers) {
 			await canvas[def.layer].deleteAll();
 		}
 	}
