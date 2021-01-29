@@ -21,7 +21,9 @@ class SceneTilerHelpers {
 	 * @memberof SceneTilerHelpers
 	 */
 	static getScaleFactor(source, target) {
-		return STEntityTranslators.calculateScaleFactor(source.grid, target.grid);
+		const distScale = 
+			   STEntityTranslators.calculateScaleFactor(source.gridDistance, target.gridDistance)
+		return STEntityTranslators.calculateScaleFactor(source.grid, target.grid) / distScale;
 	}
 
 	/**
