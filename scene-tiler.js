@@ -218,7 +218,6 @@ class SceneTiler {
 		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
 		
 		Hooks.callAll("createPlaceableObjects", canvas.scene, createdItems, {}, game.userId);
-		//if (window.tokenAttacher && TA) await tokenAttacher.regenerateLinks(createdItems);
 	}
 
 	/**
@@ -247,9 +246,6 @@ class SceneTiler {
 		if (type == this.layerDefs.walls.type)
 			return this.wallTranslate(entity, tile, cx, cy, scale, px, py);
 
-		//if (type == this.layerDefs.templates.type)
-		//	return this.templateTranslate(entity, tile, cx, cy, scale);
-
 		return this.standardTranslate(entity, type, tile, cx, cy, scale, px, py);
 	}
 
@@ -273,13 +269,8 @@ class SceneTiler {
 	static standardTranslate(entity, type, tile, cx, cy, scale, px, py) {
 		const [x, y, w, h] = Object.values(this.layerDefs)
 			.find(d => d.type == type)
-			.translator(
-				tile.x, tile.y,
-				entity.x, entity.y,
-				cx, cy,
-				tile.rotation, scale, px, py,
-				entity.width, entity.height
-			);
+			.translator( tile.x, tile.y, entity.x, entity.y, cx, cy,
+				tile.rotation, scale, px, py, entity.width, entity.height );
 		
 		if (typeof entity.rotation != "undefined")
 			entity.rotation += tile.rotation;
@@ -290,12 +281,13 @@ class SceneTiler {
 		entity.y = y;
 
 		if (w) {
-			entity.width = w;
+			entity.width  = w;
 			entity.height = h;
 		}
 
 		return entity;
 	}
+
 	/**
 	 * Handles dispatching the translation rutine for Wall objects.
 	 * 
@@ -312,14 +304,9 @@ class SceneTiler {
 	 */
 	static wallTranslate(entity, tile, cx, cy, scale, px, py) {
 		const d = this.layerDefs.walls
-			.translator(
-				tile.x, tile.y,
-				cx, cy,
-				tile.rotation, scale, px, py,
-				entity.c
-			)
+			.translator( tile.x, tile.y, cx, cy,
+				tile.rotation, scale, px, py, entity.c );
 		entity.c = d;
-
 		return entity;
 	}
 }
