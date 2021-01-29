@@ -10,7 +10,52 @@ class SceneTilerHelpers {
 			await canvas[def.layer].deleteAll();
 		}
 	}
+
+	/**
+	 * Calculates the scale ratio between source and target scenes
+	 *
+	 * @static
+	 * @param {object} source      - Scene data from which objects are coming
+	 * @param {object} target      - Scene data to which objects are going
+	 * @return {number}            - The ratio as a decimal of the grid sizes
+	 * @memberof SceneTilerHelpers
+	 */
+	static getScaleFactor(source, target) {
+		return STEntityTranslators.calculateScaleFactor(source.grid, target.grid);
+	}
+
+	/**
+	 * Determin the size and location of the tile.
+	 *
+	 * @static
+	 * @param {object} source - The scene from which the tile is being created
+	 * @param {number} x      - The X coodinate of the location where the scene was dropped
+	 * @param {number} y      - The Y coodinate of the location where the scene was dropped
+	 * @return {{
+	 *     width: number,
+	 *     height: number,
+	 *     x: number,
+	 *     y: number
+	 * }}                       The width, height, and coordinates of the tile
+	 * 
+	 * @memberof SceneTilerHelpers
+	 */
+	static getTilePos(source, x, y) {
+		const scale = this.getScaleFactor(source, canvas.scene.data);
+
+		const  width = source.width  * scale,
+		      height = source.height * scale;
+		           x = x - width  / 2;
+		           y = y - height / 2;
+
+		if (!canvas.grid.hitArea.contains(x, y)) x = y = 0;
+
+		return { width, height, ...canvas.grid.getSnappedPosition(x, y) };
+	}
 }
+
+
+/* Macro Nonsense, WIP */
 
 class STLayerSwitcher {
 	static create() {
