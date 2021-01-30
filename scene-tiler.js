@@ -122,7 +122,8 @@ class SceneTiler {
 	/**
 	 * Handles the preUpdateTile Hook
 	 *
-	 * If the update is a lock/unlock, check if if the scene is being locked. Otherwise return.
+	 * If the update is a lock/unlock, check if if the scene is being locked. 
+	 * If the update is width/height prevent the change if it's an ST tile.
 	 *
 	 * If the scene is being locked, deploy the scene tile, otherwise clear it
 	 *
@@ -134,7 +135,17 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static async preUpdateTile(scene, tileData, update) {
-		if (typeof update?.locked == "undefined") return;
+		if ( typeof update?.locked == "undefined" &&
+			 typeof update?.width  == "undefined" &&
+			 typeof update?.height == "undefined" ||
+			 !tileData?.flags["scene-tiler"]?.scene ) return;
+
+		if (update.width || update.height) {
+			update.width = undefined;
+			update.height = undefined;
+			ui.notifications.warn(game.i18n.localize("SCNTILE.notifications.warn.noResize"));
+		}
+
 		if (update.locked) this.deploySceneTile(tileData);
 		else               this.clearSceneTile(tileData);
 	}
