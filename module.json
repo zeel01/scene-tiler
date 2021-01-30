@@ -11,7 +11,7 @@
 			"discord": "zeel#4200"
 		}
 	],
-	"version": "100.0.5.1",
+	"version": "100.0.5.2",
 	"minimumCoreVersion": "0.7.9",
 	"compatibleCoreVersion": "0.7.9",
 	"scripts": [
