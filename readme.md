@@ -2,7 +2,12 @@
 ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fscene-tiler&colorB=4aa94a)
 ![Latest Release Download Count](https://img.shields.io/github/downloads/zeel01/scene-tiler/latest/scene-tiler.zip)
 
+### Video Demo:
 [![Scene Tiler video demo](https://img.youtube.com/vi/OtI9QOsZFa8/0.jpg)](https://www.youtube.com/watch?v=OtI9QOsZFa8)
+
+![Scene Tiler example](scene-tiler_004.gif)
+
+## Scene Tiler
 
 Creates tiles by dragging and dropping a scene onto another scene, then populates the tile with placeables from the source scene.
 
