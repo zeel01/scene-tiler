@@ -1,6 +1,8 @@
 ![](https://img.shields.io/badge/Foundry-v0.7.9-informational)
 ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fscene-tiler&colorB=4aa94a)
-![Latest Release Download Count](https://img.shields.io/github/downloads/zeel01/scene-tiler/latest/scene-tiler.zip) 
+![Latest Release Download Count](https://img.shields.io/github/downloads/zeel01/scene-tiler/latest/scene-tiler.zip)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/OtI9QOsZFa8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 Creates tiles by dragging and dropping a scene onto another scene, then populates the tile with placeables from the source scene.
 
