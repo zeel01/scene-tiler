@@ -128,17 +128,17 @@ class SceneTiler {
 	 * If the scene is being locked, deploy the scene tile, otherwise clear it
 	 *
 	 * @static
-	 * @param {Object} scene        - The scene in which the tile is being updated
-	 * @param {ObjectData} tileData - The data from the tile that is being update
-	 * @param {Object} update       - The data that is being updated
-	 * @return {void}                 Return early if this is not a lock/unlock update
+	 * @param {Object} scene          - The scene in which the tile is being updated
+	 * @param {TileDocument} tileDoc - The data from the tile that is being update
+	 * @param {Object} update         - The data that is being updated
+	 * @return {void}                   Return early if this is not a lock/unlock update
 	 * @memberof SceneTiler
 	 */
-	static async preUpdateTile(scene, tileData, update) {
+	static async preUpdateTile(scene, tileDoc, update) {
 		if ( typeof update?.locked == "undefined" &&
 			 typeof update?.width  == "undefined" &&
 			 typeof update?.height == "undefined" ||
-			 !tileData?.flags["scene-tiler"]?.scene ) return;
+			 !tileDoc.data?.flags["scene-tiler"]?.scene ) return;
 
 		if (update.width || update.height) {
 			update.width = undefined;
@@ -146,8 +146,8 @@ class SceneTiler {
 			ui.notifications.warn(game.i18n.localize("SCNTILE.notifications.warn.noResize"));
 		}
 
-		if (update.locked) this.deploySceneTile(tileData);
-		else               this.clearSceneTile(tileData);
+		if (update.locked) this.deploySceneTile(tileDoc.data);
+		else               this.clearSceneTile(tileDoc.data);
 	}
 
 	/**
@@ -186,9 +186,9 @@ class SceneTiler {
 		for (const def of this.layers) {
 			const entities = flags.entities[def.type];
 			if (!entities) continue;
-			await canvas[def.layer].deleteMany(entities); 
+			await canvas.scene.deleteEmbeddedDocuments(def.className, entities); 
 		}
-		await canvas.tiles.get(data._id).update({ "flags.scene-tiler.entities": null }); 
+		await canvas.tiles.get(data._id).document.update({ "flags.scene-tiler.entities": null }); 
 	}
 
 	/**
@@ -207,13 +207,13 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static async createTile(source, uuid, x, y) {
-		return await canvas.scene.createEmbeddedEntity("Tile", {
+		return await canvas.scene.createEmbeddedDocuments("Tile", [{
 			img: source.img || "modules/scene-tiler/_Blank.png",
 			flags: { 
 				"scene-tiler": { scene: uuid }
 			},
 			...this.Helpers.getTilePos(source, x, y)
-		});
+		}]);
 	}
 
 	/**
@@ -235,7 +235,7 @@ class SceneTiler {
 
 		const flagData = this.getObjectIds(createdObjects);
 		
-		await canvas.tiles.get(tileData._id).update({ "flags.scene-tiler.entities": flagData });
+		await canvas.tiles.get(tileData._id).document.update({ "flags.scene-tiler.entities": flagData });
 		
 		Hooks.callAll("createPlaceableObjects", canvas.scene, createdObjects, {}, game.userId);
 	}
@@ -256,7 +256,7 @@ class SceneTiler {
 		for (const def of this.layers) {
 			if (!objects[def.className]) continue;
 
-			let created = await canvas[def.layer].createMany(objects[def.className]) || [];
+			let created = await canvas.scene.createEmbeddedDocuments(def.className, objects[def.className]) || [];
 			if (!Array.isArray(created)) created = [created];
 
 			if (created.length) createdObjects[def.className] = created;
@@ -276,7 +276,7 @@ class SceneTiler {
 		const ids = {};
 		for (const def of this.layers) {
 			if (!objects[def.className]) continue;
-			ids[def.type] = objects[def.className].map(e => e._id);
+			ids[def.type] = objects[def.className].map(e => e.id);
 		}
 		return ids;
 	}
