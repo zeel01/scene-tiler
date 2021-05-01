@@ -128,13 +128,12 @@ class SceneTiler {
 	 * If the scene is being locked, deploy the scene tile, otherwise clear it
 	 *
 	 * @static
-	 * @param {Object} scene          - The scene in which the tile is being updated
-	 * @param {TileDocument} tileDoc - The data from the tile that is being update
+	 * @param {TileDocument} tileDoc  - The data from the tile that is being update
 	 * @param {Object} update         - The data that is being updated
 	 * @return {void}                   Return early if this is not a lock/unlock update
 	 * @memberof SceneTiler
 	 */
-	static async preUpdateTile(scene, tileDoc, update) {
+	static async preUpdateTile(tileDoc, update) {
 		if ( typeof update?.locked == "undefined" &&
 			 typeof update?.width  == "undefined" &&
 			 typeof update?.height == "undefined" ||
