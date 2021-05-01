@@ -1,18 +1,14 @@
 /**
- * The data representing some placeable object
- * 
- * @typedef {Object<string, any>} ObjectData
- *//**
  * A set of placeable object data sorted by layer
  * @typedef {{
- *     Token?:            ObjectData[],
- *     Tile?:             ObjectData[],
- *     AmbientLight?:     ObjectData[],
- *     AmbientSound?:     ObjectData[],
- *     Note?:             ObjectData[],
- *     Wall?:             ObjectData[],
- *     MeasuredTemplate?: ObjectData[],
- *     Drawing?:          ObjectData[],
+ *     Token?:            TokenData[],
+ *     Tile?:             TileData[],
+ *     AmbientLight?:     AmbientLightData[],
+ *     AmbientSound?:     AmbientSoundData[],
+ *     Note?:             NoteData[],
+ *     Wall?:             WallData[],
+ *     MeasuredTemplate?: MeasuredTemplateData[],
+ *     Drawing?:          DrawingData[],
  * }} ObjectsData
  */
 
@@ -61,14 +57,14 @@ class SceneTiler {
 	 */
 	static get layerDefs() {
 		return {
-			"tokens"   : { layer: "tokens"    , type: "tokens"    , className: "Token"            , translator: this.Translators.translatePointWidthGrids.bind(this.Translators) },
-			"tiles"    : { layer: "tiles"     , type: "tiles"     , className: "Tile"             , translator: this.Translators.translatePointWidth.bind(this.Translators)      },
-			"lights"   : { layer: "lighting"  , type: "lights"    , className: "AmbientLight"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
-			"sounds"   : { layer: "sounds"    , type: "sounds"    , className: "AmbientSound"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
-			"notes"    : { layer: "notes"     , type: "notes"     , className: "Note"             , translator: this.Translators.translatePoint.bind(this.Translators)           },
-			"walls"    : { layer: "walls"     , type: "walls"     , className: "Wall"             , translator: this.Translators.translateWall.bind(this.Translators)            },
-			"templates": { layer: "templates" , type: "templates" , className: "MeasuredTemplate" , translator: this.Translators.translatePoint.bind(this.Translators)           },
-			"drawings" : { layer: "drawings"  , type: "drawings"  , className: "Drawing"          , translator: this.Translators.translatePointWidth.bind(this.Translators)      }
+			"tiles"      : { layer: "background" , type: "tiles"     , className: "Tile"             , translator: this.Translators.translatePointWidth.bind(this.Translators)      },
+			"drawings"   : { layer: "drawings"   , type: "drawings"  , className: "Drawing"          , translator: this.Translators.translatePointWidth.bind(this.Translators)      },
+			"walls"      : { layer: "walls"      , type: "walls"     , className: "Wall"             , translator: this.Translators.translateWall.bind(this.Translators)            },
+			"templates"  : { layer: "templates"  , type: "templates" , className: "MeasuredTemplate" , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"notes"      : { layer: "notes"      , type: "notes"     , className: "Note"             , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"tokens"     : { layer: "tokens"     , type: "tokens"    , className: "Token"            , translator: this.Translators.translatePointWidthGrids.bind(this.Translators) },
+			"sounds"     : { layer: "sounds"     , type: "sounds"    , className: "AmbientSound"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"lights"     : { layer: "lighting"   , type: "lights"    , className: "AmbientLight"     , translator: this.Translators.translatePoint.bind(this.Translators)           }
 		}
 	}
 
@@ -156,7 +152,7 @@ class SceneTiler {
 	 * Then get the data from the source, and place the objects from it if it exists
 	 *
 	 * @static
-	 * @param {ObjectData} data - The data from the tile that is being update
+	 * @param {TileData} data - The data from the tile that is being update
 	 * @return {Promise<void>}    Return early if the UUID doesn't retrieve a source scene 
 	 * @memberof SceneTiler
 	 */
@@ -175,7 +171,7 @@ class SceneTiler {
 	 * then set the flag for entities to null
 	 *
 	 * @static
-	 * @param {ObjectData} data - The data from the tile that is being update
+	 * @param {TileData} data - The data from the tile that is being update
 	 * @memberof SceneTiler
 	 */
 	static async clearSceneTile(data) {
@@ -198,19 +194,17 @@ class SceneTiler {
 	 * and then the position of the tile is adjusted to account for a change in size.
 	 *
 	 * @static
-	 * @param {Object} source - The scene from which this tile is created, and from which data will be pulled
+	 * @param {Scene} source  - The scene from which this tile is created, and from which data will be pulled
 	 * @param {String} uuid   - The UUID of the source scene.
 	 * @param {Number} x      - The X coodinate of the location where the scene was dropped
 	 * @param {Number} y      - The Y coodinate of the location where the scene was dropped
-	 * @return {ObjectData}     The data of the tile that was created
+	 * @return {TileData}       The data of the tile that was created
 	 * @memberof SceneTiler
 	 */
 	static async createTile(source, uuid, x, y) {
 		return await canvas.scene.createEmbeddedDocuments("Tile", [{
 			img: source.img || "modules/scene-tiler/_Blank.png",
-			flags: { 
-				"scene-tiler": { scene: uuid }
-			},
+			flags: { "scene-tiler": { scene: uuid } },
 			...this.Helpers.getTilePos(source.data, x, y)
 		}]);
 	}
@@ -220,9 +214,9 @@ class SceneTiler {
 	 * and translating their position, scale, and angle to match a tile.
 	 *
 	 * @static
-	 * @param {Object} source       - The data of the source scene
-	 * @param {ObjectData} tileData - The data of the background tile in the target scene
-	 * @return {void}                 Return early if a handler of the preCreatePlaceableObjects hook reponds with a false
+	 * @param {Scene} source       - The data of the source scene
+	 * @param {TileData} tileData  - The data of the background tile in the target scene
+	 * @return {void}                Return early if a handler of the preCreatePlaceableObjects hook reponds with a false
 	 * @memberof SceneTiler
 	 */
 	static async placeAllFromSceneAt(source, tileData) {
@@ -284,8 +278,8 @@ class SceneTiler {
 	 * Gets a set of prepared object data
 	 *
 	 * @static
-	 * @param {Object} source     - The data of the scene from which to obtain the object data
-	 * @param {ObjectData} tile   - The data of the tile onto which to map the objects
+	 * @param {Scene} source     - The data of the scene from which to obtain the object data
+	 * @param {TileData} tile   - The data of the tile onto which to map the objects
 	 * @return {ObjectsData}        The data of the objects
 	 * @memberof SceneTiler
 	 */
@@ -307,11 +301,11 @@ class SceneTiler {
 	 * Prepares the data of an object, translated, rotated, and scaled to fit the target scene and tile
 	 *
 	 * @static
-	 * @param {Object} source                 - The data of the scene from which to obtain the object data
+	 * @param {Scene} source                 - The data of the scene from which to obtain the object data
 	 * @param {String} type                   - The type name of the object
-	 * @param {ObjectData} tile               - The data of the tile onto which to map the objects
+	 * @param {TileData} tile                 - The data of the tile onto which to map the objects
 	 * @param {[Number, Number, Number]} spxy - The scalefactor and padding x, and padding y of the source 
-	 * @return {ObjectData[]}                   The set of prepared object data
+	 * @return {DocumentData[]}                 The set of prepared object data
 	 * @memberof SceneTiler
 	 */
 	static prepareObjects(source, type, tile, ...spxy) {
@@ -329,13 +323,13 @@ class SceneTiler {
 	 * Also calculates the center point cx, cy of the tile in order to pass it along.
 	 *
 	 * @static
-	 * @param {Entity} entity - The entity of the object being translated
-	 * @param {String} type   - The entity type of the entity
-	 * @param {Tile} tile     - The tile used as a positional reference point
-	 * @param {Number} scale  - The ratio of grid size between source and target scenes
-	 * @param {Number} px     - The amount of scene padding in the X axis
-	 * @param {Number} py     - The amount of scene padding in the Y axis
-	 * @return {Entity}       - The original entity, now modified
+	 * @param {Document} entity - The entity of the object being translated
+	 * @param {String} type     - The entity type of the entity
+	 * @param {Tile} tile       - The tile used as a positional reference point
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @param {Number} px       - The amount of scene padding in the X axis
+	 * @param {Number} py       - The amount of scene padding in the Y axis
+	 * @return {Entity}         - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
 	static translateEntity(entity, type, tile, scale, px, py) {
@@ -357,15 +351,15 @@ class SceneTiler {
 	 * This includes objects with a single x, y location, and optionally width/height.
 	 *
 	 * @static
-	 * @param {Entity} entity - The entity of the object being translated
-	 * @param {String} type   - The entity type of the entity
-	 * @param {Tile} tile     - The tile used as a positional reference point
-	 * @param {Number} cx     - The center X coordinate of the tile, used for rotation
-	 * @param {Number} cy     - The center Y coordinate of the tile, used for rotation
-	 * @param {Number} scale  - The ratio of grid size between source and target scenes
-	 * @param {Number} px     - The amount of scene padding in the X axis
-	 * @param {Number} py     - The amount of scene padding in the Y axis
-	 * @return {Entity}       - The original entity, now modified
+	 * @param {Document} entity - The entity of the object being translated
+	 * @param {String} type     - The entity type of the entity
+	 * @param {Tile} tile       - The tile used as a positional reference point
+	 * @param {Number} cx       - The center X coordinate of the tile, used for rotation
+	 * @param {Number} cy       - The center Y coordinate of the tile, used for rotation
+	 * @param {Number} scale    - The ratio of grid size between source and target scenes
+	 * @param {Number} px       - The amount of scene padding in the X axis
+	 * @param {Number} py       - The amount of scene padding in the Y axis
+	 * @return {Entity}         - The original entity, now modified
 	 * @memberof SceneTiler
 	 */
 	static standardTranslate(entity, type, tile, cx, cy, scale, px, py) {
