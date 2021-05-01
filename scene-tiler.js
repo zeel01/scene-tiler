@@ -187,7 +187,7 @@ class SceneTiler {
 			if (!entities) continue;
 			await canvas.scene.deleteEmbeddedDocuments(def.className, entities); 
 		}
-		await canvas.tiles.get(data._id).document.update({ "flags.scene-tiler.entities": null }); 
+		await canvas.background.get(data._id).document.update({ "flags.scene-tiler.entities": null }); 
 	}
 
 	/**
@@ -234,7 +234,7 @@ class SceneTiler {
 
 		const flagData = this.getObjectIds(createdObjects);
 		
-		await canvas.tiles.get(tileData._id).document.update({ "flags.scene-tiler.entities": flagData });
+		await canvas.background.get(tileData._id).document.update({ "flags.scene-tiler.entities": flagData });
 		
 		Hooks.callAll("createPlaceableObjects", canvas.scene, createdObjects, {}, game.userId);
 	}
