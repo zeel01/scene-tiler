@@ -109,7 +109,7 @@ class SceneTiler {
 		if (pack) uuid = `Compendium.${pack}.${id}`;
 		else      uuid = `${type}.${id}`;
 	
-		const source = duplicate(await fromUuid(uuid));
+		const source = await fromUuid(uuid);
 		
 		if (!source) { 
 			console.debug(game.i18n.localize("SCNTILE.console.debug.sceneNotFound"));
@@ -163,8 +163,8 @@ class SceneTiler {
 	static async deploySceneTile(data) {
 		const uuid = data.flags["scene-tiler"]?.scene;
 		if (!uuid) return;
-
-		const source = duplicate(await fromUuid(uuid));
+			
+		const source = await fromUuid(uuid);
 		if (source) await this.placeAllFromSceneAt(source, data);
 	}
 
@@ -211,7 +211,7 @@ class SceneTiler {
 			flags: { 
 				"scene-tiler": { scene: uuid }
 			},
-			...this.Helpers.getTilePos(source, x, y)
+			...this.Helpers.getTilePos(source.data, x, y)
 		}]);
 	}
 
@@ -291,10 +291,10 @@ class SceneTiler {
 	 */
 	static getObjects(source, tile) {
 		const objects = {};
-		const [px, py] = this.Helpers.getPadding(source);
+		const [px, py] = this.Helpers.getPadding(source.data);
 
 		/** @type {Number} The ratio of grid size between source and target scenes */
-		const scale = this.Helpers.getScaleFactor(source, canvas.scene.data);
+		const scale = this.Helpers.getScaleFactor(source.data, canvas.scene.data);
 
 		for (const def of this.layers) {
 			const entities = this.prepareObjects(source, def.type, tile, scale, px, py);
@@ -318,7 +318,7 @@ class SceneTiler {
 		return source[type].map(entity => {
 			if (type == this.layerDefs.tiles.type) entity.z += tile.z;
 
-			return this.translateEntity(entity, type, tile, ...spxy);
+			return this.translateEntity(entity.data.toObject(), type, tile, ...spxy);
 		});
 	}
 
