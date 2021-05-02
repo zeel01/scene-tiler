@@ -48,10 +48,11 @@ class SceneTilerHelpers {
 	static getTilePos(source, x, y) {
 		const scale = this.getScaleFactor(source, canvas.scene.data);
 
-		const  width = source.width  * scale,
-		      height = source.height * scale;
-		           x = x - width  / 2;
-		           y = y - height / 2;
+		const  { width, height } =
+			STEntityTranslators.getScaledTileSize(source, scale);
+
+		x = x - width  / 2;
+		y = y - height / 2;
 
 		if (!canvas.grid.hitArea.contains(x, y)) x = y = 0;
 

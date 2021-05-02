@@ -195,4 +195,24 @@ class STEntityTranslators {
 	static calculateScaleFactor(source, destination) {
 		return destination / source;
 	}
+
+	/**
+	 * Calculates the width and height of a tile matching the dimensions
+	 * of the source scene, when scales to the destination scene.
+	 *
+	 * @static
+	 * @param {SceneData} source - The scene from which the tile is being created
+	 * @param {Number} scale     - The ratio of grid size between source and target scenes
+	 * @return {{
+	 *	   width: number, 
+	 *	   height: number, 
+	 }} 
+	 * @memberof STEntityTranslators
+	 */
+	static getScaledTileSize(source, scale) {
+		return {
+			width: source.width  * scale,
+			height: source.height * scale
+		}
+	}
 }
