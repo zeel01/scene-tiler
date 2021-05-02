@@ -41,7 +41,7 @@ class SceneTilerHelpers {
 	 *     height: Number,
 	 *     x: Number,
 	 *     y: Number
-	 * }}                       The width, height, and coordinates of the tile
+	 * }}                          The width, height, and coordinates of the tile
 	 * 
 	 * @memberof SceneTilerHelpers
 	 */
