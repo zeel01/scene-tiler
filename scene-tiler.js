@@ -279,8 +279,8 @@ class SceneTiler {
 	 *
 	 * @static
 	 * @param {Scene} source     - The data of the scene from which to obtain the object data
-	 * @param {TileData} tile   - The data of the tile onto which to map the objects
-	 * @return {ObjectsData}        The data of the objects
+	 * @param {TileData} tile    - The data of the tile onto which to map the objects
+	 * @return {ObjectsData}       The data of the objects
 	 * @memberof SceneTiler
 	 */
 	static getObjects(source, tile) {
@@ -292,9 +292,51 @@ class SceneTiler {
 
 		for (const def of this.layers) {
 			const entities = this.prepareObjects(source, def.type, tile, scale, px, py);
+			if (def.type == "tiles") this.getForegroundTile(entities, source, tile, scale);
 			if (entities.length) objects[def.className] = entities;
 		}
 		return objects;
+	}
+
+	/**
+	 * Creates the data for an additional tile representing the foreground image
+	 * set on the source scene. This tile matches the sizer and position of the 
+	 * background tile, but is `overhead: true` with an occlusion mode of `0`.
+	 *
+	 * The z-index of this new tile is one less than the lowest overhead tile on the scene,
+	 * ensuring that all other overhead tiles apepar above it.
+	 *
+	 * @static
+	 * @param {Array<TileData>} tiles         - All the other tiles in the scene
+	 * @param {Scene} source                  - The data of the scene from which to obtain the object data
+	 * @param {TileData} tile                 - The data of the tile onto which to map the tile
+	 * @param {Number} scale                  - The ratio of grid size between source and target scenes
+	 * @return {void}                           Returns early if no foreground image is set on source
+	 * @memberof SceneTiler
+	 */
+	static getForegroundTile(tiles, source, tile, scale) {
+		// If there isn't a foreground image, do nothing.
+		if (!source.data.foreground) return;
+
+		/** @type {number} The lowest z value of any overhead tile */
+		const minZ = tiles
+			.filter(tile => tile.overhead)
+			.reduce((min, tile) => tile.z < min ? tile.z : min, Number.MAX_VALUE);
+
+		// The primary data of the new tile
+		const foreground = {
+			img: source.data.foreground,
+			overhead: true,
+			occlusion: { mode: 0 },      // Mode 0 is no occlusion, this tile is always visible
+			x: tile.x, y: tile.y,
+			z: minZ - 1,
+			rotation: tile.rotation,
+			width: tile.width,
+			height: tile.height
+		}
+		
+		// Add this new tile data to the array of tiles in order to include it in the batch
+		tiles.push(foreground);
 	}
 
 	/**
