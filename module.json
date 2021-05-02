@@ -19,9 +19,6 @@
 		"scene-tiler-helpers.js",
 		"scene-tiler.js"
 	],
-	"styles": [
-		"scene-tiler.css"
-	],
 	"languages": [ 
 		{
 			"lang": "en",
