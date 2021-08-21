@@ -57,14 +57,14 @@ class SceneTiler {
 	 */
 	static get layerDefs() {
 		return {
-			"tiles"      : { layer: "background" , type: "tiles"     , className: "Tile"             , translator: this.Translators.translatePointWidth.bind(this.Translators)      },
 			"drawings"   : { layer: "drawings"   , type: "drawings"  , className: "Drawing"          , translator: this.Translators.translatePointWidth.bind(this.Translators)      },
 			"walls"      : { layer: "walls"      , type: "walls"     , className: "Wall"             , translator: this.Translators.translateWall.bind(this.Translators)            },
 			"templates"  : { layer: "templates"  , type: "templates" , className: "MeasuredTemplate" , translator: this.Translators.translatePoint.bind(this.Translators)           },
 			"notes"      : { layer: "notes"      , type: "notes"     , className: "Note"             , translator: this.Translators.translatePoint.bind(this.Translators)           },
 			"tokens"     : { layer: "tokens"     , type: "tokens"    , className: "Token"            , translator: this.Translators.translatePointWidthGrids.bind(this.Translators) },
 			"sounds"     : { layer: "sounds"     , type: "sounds"    , className: "AmbientSound"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
-			"lights"     : { layer: "lighting"   , type: "lights"    , className: "AmbientLight"     , translator: this.Translators.translatePoint.bind(this.Translators)           }
+			"lights"     : { layer: "lighting"   , type: "lights"    , className: "AmbientLight"     , translator: this.Translators.translatePoint.bind(this.Translators)           },
+			"tiles"      : { layer: "background" , type: "tiles"     , className: "Tile"             , translator: this.Translators.translatePointWidth.bind(this.Translators)      }
 		}
 	}
 
@@ -249,7 +249,14 @@ class SceneTiler {
 		for (const def of this.layers) {
 			if (!objects[def.className]) continue;
 
-			let created = await canvas.scene.createEmbeddedDocuments(def.className, objects[def.className]) || [];
+			let created = [];
+			try {
+				created = await canvas.scene.createEmbeddedDocuments(def.className, objects[def.className]) || [];
+			}
+			catch (e) { 
+				console.error(e);
+			}
+
 			if (!Array.isArray(created)) created = [created];
 
 			if (created.length) createdObjects[def.className] = created;
