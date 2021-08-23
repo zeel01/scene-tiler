@@ -85,11 +85,13 @@ class SceneTiler {
 	 * location and rotations. The scene tile can be created empty
 	 * for later deployment, or it can be populated immediately.
 	 *
+	 * The default position is the center of the scene. The default rotation is 0.
+	 *
 	 * @static
 	 * @param  {Scene}    scene              - The scene to create a tile from
 	 * @param  {object}  [options]           - An object of optional parameters
-	 * @param  {Number}  [options.x]         - The x position of the scene tile
-	 * @param  {Number}  [options.y]         - The y position of the scene tile
+	 * @param  {Number}  [options.x]         - The x position of the center of the scene tile
+	 * @param  {Number}  [options.y]         - The y position of the center of the scene tile
 	 * @param  {Number}  [options.rotation]  - The rotational angle of the scene, 0 is not rotated at all
 	 * @param  {Boolean} [options.populate]  - If true, the tile will be populated immediately
 	 * @return {Promise<TileDocument>}         The tile document for the new scene tile
@@ -109,7 +111,7 @@ class SceneTiler {
 
 		return tile;
 	}
-	
+
 
 	/**
 	 * @typedef  {Object} dropData - A set of data generated when dropping something onto the scene
