@@ -194,17 +194,20 @@ class SceneTiler {
 	 * and then the position of the tile is adjusted to account for a change in size.
 	 *
 	 * @static
-	 * @param {Scene} source  - The scene from which this tile is created, and from which data will be pulled
-	 * @param {String} uuid   - The UUID of the source scene.
-	 * @param {Number} x      - The X coodinate of the location where the scene was dropped
-	 * @param {Number} y      - The Y coodinate of the location where the scene was dropped
-	 * @return {TileData}       The data of the tile that was created
+	 * @param {Scene} source          - The scene from which this tile is created, and from which data will be pulled
+	 * @param {String} uuid           - The UUID of the source scene.
+	 * @param {Number} x              - The X coodinate of the location where the scene was dropped
+	 * @param {Number} y              - The Y coodinate of the location where the scene was dropped
+	 * @param {Number} [rotation=0]   - The rotation of the tile
+	 * @param {Number} [locked=false] - Whether or not to create the tile in a locked state. Only do this if the tile is being deployed immediately.
+	 * @return {TileDocument}           The data of the tile that was created
 	 * @memberof SceneTiler
 	 */
-	static async createTile(source, uuid, x, y) {
+	static async createTile(source, uuid, x, y, rotation = 0, locked = false) {
 		return await canvas.scene.createEmbeddedDocuments("Tile", [{
 			img: source.img || "modules/scene-tiler/_Blank.png",
 			flags: { "scene-tiler": { scene: uuid } },
+			rotation, locked,
 			...this.Helpers.getTilePos(source.data, x, y)
 		}]);
 	}
