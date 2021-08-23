@@ -78,6 +78,39 @@ class SceneTiler {
 	 */
 	static get layers() { return Object.values(this.layerDefs); }
 
+
+	
+	/**
+	 * Creates a tile from a scene at at an optionally specified
+	 * location and rotations. The scene tile can be created empty
+	 * for later deployment, or it can be populated immediately.
+	 *
+	 * @static
+	 * @param  {Scene}    scene              - The scene to create a tile from
+	 * @param  {object}  [options]           - An object of optional parameters
+	 * @param  {Number}  [options.x]         - The x position of the scene tile
+	 * @param  {Number}  [options.y]         - The y position of the scene tile
+	 * @param  {Number}  [options.rotation]  - The rotational angle of the scene, 0 is not rotated at all
+	 * @param  {Boolean} [options.populate]  - If true, the tile will be populated immediately
+	 * @return {Promise<TileDocument>}         The tile document for the new scene tile
+	 * @memberof SceneTiler
+	 */
+	static async create(scene, { x, y, rotation, populate } = {}) {
+		const tiles = await this.createTile(
+			scene, scene.uuid, 
+			x ?? game.canvas.scene.data.width  / 2,
+			y ?? game.canvas.scene.data.height / 2,
+			rotation ?? 0,
+			populate ?? false
+		);
+		const tile  = tiles[0];
+
+		if (populate) await this.deploySceneTile(tile.data);
+
+		return tile;
+	}
+	
+
 	/**
 	 * @typedef  {Object} dropData - A set of data generated when dropping something onto the scene
 	 * @property {String} id       - The ID of the entity that was dropped
