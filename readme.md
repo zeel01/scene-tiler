@@ -25,7 +25,7 @@ Scene Tiler exposes an API on the global `SceneTiler` object. Most of the API is
 
 The one method that should remain as stable as possible, and also the only method that most applications are likely to need is `SceneTiler.create` which creates a new scene tile from a source scene.
 
-### `create(scene, { x, y, rotation, populate })`
+### `create(scene, { x, y, rotation, populate, centered })`
 
 This method accepts two parameters, the first is a `Scene` object for the scene that is being turned into a tile. The second is an object with optional parameters.
 
