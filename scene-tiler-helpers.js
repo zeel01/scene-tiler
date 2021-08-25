@@ -33,26 +33,29 @@ class SceneTilerHelpers {
 	 * Determin the size and location of the tile.
 	 *
 	 * @static
-	 * @param {SceneData} source - The scene from which the tile is being created
-	 * @param {Number} x         - The X coodinate of the location where the scene was dropped
-	 * @param {Number} y         - The Y coodinate of the location where the scene was dropped
+	 * @param {SceneData} source        - The scene from which the tile is being created
+	 * @param {Number} x                - The X coodinate of the location where the scene was dropped
+	 * @param {Number} y                - The Y coodinate of the location where the scene was dropped
+	 * @param {Boolean} [centered=true] - If true, the tile position is shifted to be relative to the center of the tile
 	 * @return {{
 	 *     width: Number,
 	 *     height: Number,
 	 *     x: Number,
 	 *     y: Number
-	 * }}                          The width, height, and coordinates of the tile
+	 * }}                                 The width, height, and coordinates of the tile
 	 * 
 	 * @memberof SceneTilerHelpers
 	 */
-	static getTilePos(source, x, y) {
+	static getTilePos(source, x, y, centered = true) {
 		const scale = this.getScaleFactor(source, canvas.scene.data);
 
 		const  { width, height } =
 			STEntityTranslators.getScaledTileSize(source, scale);
 
-		x = x - width  / 2;
-		y = y - height / 2;
+		if (centered) {
+			x = x - width  / 2;
+			y = y - height / 2;
+		}
 
 		if (!canvas.grid.hitArea.contains(x, y)) x = y = 0;
 

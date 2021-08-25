@@ -31,8 +31,6 @@ This method accepts two parameters, the first is a `Scene` object for the scene 
 
 When coordinates are omitted, the tile will be placed in the center of the scene. When rotation is omitted, the tile will be placed with rotation 0. When populate is `false` or omitted, the tile will be created with no objects.
 
-The `x` and `y` coordinates are the *center* of the tile, this is due to the way that Scene Tiler handles drag/drop tile creation, which follows the standard of how Foundry typically handles dropping object centered at the mouse pointer.
-
 #### Parameters
 
 | Name | Type | Description |
@@ -42,6 +40,7 @@ The `x` and `y` coordinates are the *center* of the tile, this is due to the way
 | y | `Number` | The y position of the center of the tile in the scene. |
 | rotation | `Number` | The rotation of the tile in the scene. |
 | populate | `Boolean` | Whether or not to populate the tile with the objects from the source scene. |
+| centered | `Boolean` | If true, the tile position is shifted to be relative to the center of the tile. |
 
 #### Example
 

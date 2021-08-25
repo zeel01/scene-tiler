@@ -94,15 +94,17 @@ class SceneTiler {
 	 * @param  {Number}  [options.y]         - The y position of the center of the scene tile
 	 * @param  {Number}  [options.rotation]  - The rotational angle of the scene, 0 is not rotated at all
 	 * @param  {Boolean} [options.populate]  - If true, the tile will be populated immediately
+	 * @param  {Boolean} [options.centered]  - If true, the tile position is shifted to be relative to the center of the tile
 	 * @return {Promise<TileDocument>}         The tile document for the new scene tile
 	 * @memberof SceneTiler
 	 */
-	static async create(scene, { x, y, rotation, populate } = {}) {
+	static async create(scene, { x, y, rotation, populate, centered } = {}) {
 		const tiles = await this.createTile(
 			scene, scene.uuid, 
 			x ?? game.canvas.scene.data.width  / 2,
 			y ?? game.canvas.scene.data.height / 2,
 			rotation ?? 0,
+			centered ?? false,
 			populate ?? false
 		);
 		const tile  = tiles[0];
@@ -229,21 +231,22 @@ class SceneTiler {
 	 * and then the position of the tile is adjusted to account for a change in size.
 	 *
 	 * @static
-	 * @param {Scene} source          - The scene from which this tile is created, and from which data will be pulled
-	 * @param {String} uuid           - The UUID of the source scene.
-	 * @param {Number} x              - The X coodinate of the location where the scene was dropped
-	 * @param {Number} y              - The Y coodinate of the location where the scene was dropped
-	 * @param {Number} [rotation=0]   - The rotation of the tile
-	 * @param {Number} [locked=false] - Whether or not to create the tile in a locked state. Only do this if the tile is being deployed immediately.
-	 * @return {TileDocument}           The data of the tile that was created
+	 * @param {Scene} source            - The scene from which this tile is created, and from which data will be pulled
+	 * @param {String} uuid             - The UUID of the source scene.
+	 * @param {Number} x                - The X coodinate of the location where the scene was dropped
+	 * @param {Number} y                - The Y coodinate of the location where the scene was dropped
+	 * @param {Number} [rotation=0]     - The rotation of the tile
+	 * @param {Boolean} [centered=true] - If true, the tile position is shifted to be relative to the center of the tile
+	 * @param {Number} [locked=false]   - Whether or not to create the tile in a locked state. Only do this if the tile is being deployed immediately.
+	 * @return {TileDocument}             The data of the tile that was created
 	 * @memberof SceneTiler
 	 */
-	static async createTile(source, uuid, x, y, rotation = 0, locked = false) {
+	static async createTile(source, uuid, x, y, rotation = 0, centered = true, locked = false) {
 		return await canvas.scene.createEmbeddedDocuments("Tile", [{
 			img: source.img || "modules/scene-tiler/_Blank.png",
 			flags: { "scene-tiler": { scene: uuid } },
 			rotation, locked,
-			...this.Helpers.getTilePos(source.data, x, y)
+			...this.Helpers.getTilePos(source.data, x, y, centered)
 		}]);
 	}
 
