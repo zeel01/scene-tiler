@@ -4,7 +4,8 @@
 		"notifications": {
 			"warn": {
 				"unmatchedUnits": "The source and target scenes do not share the same distance units, the scale factor may not be accurate.",
-				"noResize": "Scene Tiler tiles can not be resized."
+				"noResize": "Scene Tiler tiles can not be resized.",
+				"notaSceneTile": "This Tile is not a Scene Tile"
 			}
 		},
 		"console": {

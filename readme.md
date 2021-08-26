@@ -45,7 +45,36 @@ When coordinates are omitted, the tile will be placed in the center of the scene
 #### Example
 
 ```js
-await SceneTiler.create(game.scenes.getName("Tile Source Test"), { populate: true, rotation: 45 })
+let tile = await SceneTiler.create(game.scenes.getName("Tile Source Test"), { populate: true, rotation: 45 })
 ```
 
 Creates a tile from "Tile Source Test" at the center of the scene, rotated 45 degrees, and instantly populates it.
+
+### `populate(tile)` & `clear(tile)`
+
+These methods accept a `Tile` object with Scene Tiler flags and populate or clear it with the objects from the source scene.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tile | `Tile` | The tile to populate or clear. |
+
+#### Example
+
+```js
+let tile = await SceneTiler.create(game.scenes.getName("Tile Source Test"), { populate: false })
+
+await SceneTiler.populate(tile);
+```
+
+### `setTileState(tile, state)`
+
+Sets the populated/cleared state of a tile. Similar to `populate` and `clear` but accepts a second Boolean parameter. When `state` is true, the tile will be locked and populated. When `state` is false, the tile will be unlocked and cleared.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tile | `Tile` | The tile to populate or clear. |
+| state | `Boolean` | Whether or not to populate the tile with the objects from the source scene. |

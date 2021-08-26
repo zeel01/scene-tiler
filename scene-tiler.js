@@ -116,6 +116,55 @@ class SceneTiler {
 
 
 	/**
+	 * Populates a tile with placeables from a scene.
+	 *
+	 * @static
+	 * @param {TileDocument}     tile  - A Scene Tiler tile.
+	 * @return {Promise<TileDocument>}   The tile that was updated
+	 * @memberof SceneTiler
+	 */
+	static async populate(tile) {
+		return await this.setTileState(tile, true);
+	}
+
+	
+	/**
+	 * Clears the tile of all placeables.
+	 *
+	 * @static
+	 * @param {TileDocument}     tile  - A Scene Tiler tile.
+	 * @return {Promise<TileDocument>}   The tile that was updated
+	 * @memberof SceneTiler
+	 */
+	static async clear(tile) {
+		return await this.setTileState(tile, false);
+	}
+
+	
+	/**
+	 * Set the populated/cleared state of a tile.
+	 *
+	 * If state is true, populates the tile.
+	 * If state is false, clears the tile.
+	 *
+	 * @static
+	 * @param {TileDocument}     tile  - A Scene Tiler tile.
+	 * @param {Boolean}          state - Whether to populate or clear the tile
+	 * @return {Promise<TileDocument>}   The tile that was updated
+	 * @memberof SceneTiler
+	 */
+	static async setTileState(tile, state) {
+		if (tile.data.flags["scene-tiler"]?.scene)
+			return await tile.update({ locked: state });
+		else {
+			const message = game.i18n.localize("scene-tiler.notifications.warn.notaSceneTile");
+			console.warn(message);
+			ui.notifications.warn(message);
+		}
+	}
+
+
+	/**
 	 * @typedef  {Object} dropData - A set of data generated when dropping something onto the scene
 	 * @property {String} id       - The ID of the entity that was dropped
 	 * @property {String} type     - The type of entity that was dropped
@@ -238,7 +287,7 @@ class SceneTiler {
 	 * @param {Number} [rotation=0]     - The rotation of the tile
 	 * @param {Boolean} [centered=true] - If true, the tile position is shifted to be relative to the center of the tile
 	 * @param {Number} [locked=false]   - Whether or not to create the tile in a locked state. Only do this if the tile is being deployed immediately.
-	 * @return {TileDocument}             The data of the tile that was created
+	 * @return {Promise<TileDocument>}    The data of the tile that was created
 	 * @memberof SceneTiler
 	 */
 	static async createTile(source, uuid, x, y, rotation = 0, centered = true, locked = false) {
