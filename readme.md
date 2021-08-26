@@ -52,13 +52,13 @@ Creates a tile from "Tile Source Test" at the center of the scene, rotated 45 de
 
 ### `populate(tile)` & `clear(tile)`
 
-These methods accept a `Tile` object with Scene Tiler flags and populate or clear it with the objects from the source scene.
+These methods accept a `TileDocument` object with Scene Tiler flags and populate or clear it with the objects from the source scene.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| tile | `Tile` | The tile to populate or clear. |
+| tile | `TileDocument` | The tile to populate or clear. |
 
 #### Example
 
@@ -76,5 +76,5 @@ Sets the populated/cleared state of a tile. Similar to `populate` and `clear` bu
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| tile | `Tile` | The tile to populate or clear. |
+| tile | `TileDocument` | The tile to populate or clear. |
 | state | `Boolean` | Whether or not to populate the tile with the objects from the source scene. |
