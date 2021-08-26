@@ -23,7 +23,7 @@ This module can be used to assemble scenes from smaller bulding blocks, to spawn
 
 Scene Tiler exposes an API on the global `SceneTiler` object. Most of the API is pseudo-public, meaning that while it's fine to access it externally, there is not a guarantee of stability.
 
-The one method that should remain as stable as possible, and also the only method that most applications are likely to need is `SceneTiler.create` which creates a new scene tile from a source scene.
+The methods below are considered the "publick API" and should remain relatively stable.
 
 ### `create(scene, { x, y, rotation, populate, centered })`
 
