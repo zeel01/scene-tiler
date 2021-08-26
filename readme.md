@@ -25,7 +25,7 @@ Scene Tiler exposes an API on the global `SceneTiler` object. Most of the API is
 
 The methods below are considered the "publick API" and should remain relatively stable.
 
-### `create(scene, { x, y, rotation, populate, centered })`
+### `async create(scene, { x, y, rotation, populate, centered })`
 
 This method accepts two parameters, the first is a `Scene` object for the scene that is being turned into a tile. The second is an object with optional parameters.
 
@@ -33,14 +33,16 @@ When coordinates are omitted, the tile will be placed in the center of the scene
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| scene | `Scene` | The scene that is being turned into a tile. |
-| x | `Number` | The x position of the center of the tile in the scene. |
-| y | `Number` | The y position of the center of the tile in the scene. |
-| rotation | `Number` | The rotation of the tile in the scene. |
-| populate | `Boolean` | Whether or not to populate the tile with the objects from the source scene. |
-| centered | `Boolean` | If true, the tile position is shifted to be relative to the center of the tile. |
+| Name | Type | Description |   |
+| ---- | ---- | ----------- | - |
+| scene | `Scene` | The scene that is being turned into a tile. | |
+| options | `Object` | An object with optional parameters. | *optional* |
+| options.x | `Number` | The x position of the center of the tile in the scene. | *optional* |
+| options.y | `Number` | The y position of the center of the tile in the scene. | *optional* |
+| options.rotation | `Number` | The rotation of the tile in the scene. | *optional* |
+| options.populate | `Boolean` | Whether or not to populate the tile with the objects from the source scene. | *optional* |
+| options.centered | `Boolean` | If true, the tile position is shifted to be relative to the center of the tile. | *optional* |
+| **Return** | `Promise<TileDocument>` | A promise that resolves to the TileDocument that was created for the Scene | |
 
 #### Example
 
@@ -50,7 +52,7 @@ let tile = await SceneTiler.create(game.scenes.getName("Tile Source Test"), { po
 
 Creates a tile from "Tile Source Test" at the center of the scene, rotated 45 degrees, and instantly populates it.
 
-### `populate(tile)` & `clear(tile)`
+### `async populate(tile)` & `async clear(tile)`
 
 These methods accept a `TileDocument` object with Scene Tiler flags and populate or clear it with the objects from the source scene.
 
@@ -59,6 +61,7 @@ These methods accept a `TileDocument` object with Scene Tiler flags and populate
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tile | `TileDocument` | The tile to populate or clear. |
+| **Return** | `Promise<TileDocument>` | A promise that resolves to the TileDocument that was updated |
 
 #### Example
 
@@ -68,7 +71,7 @@ let tile = await SceneTiler.create(game.scenes.getName("Tile Source Test"), { po
 await SceneTiler.populate(tile);
 ```
 
-### `setTileState(tile, state)`
+### `async setTileState(tile, state)`
 
 Sets the populated/cleared state of a tile. Similar to `populate` and `clear` but accepts a second Boolean parameter. When `state` is true, the tile will be locked and populated. When `state` is false, the tile will be unlocked and cleared.
 
@@ -78,3 +81,4 @@ Sets the populated/cleared state of a tile. Similar to `populate` and `clear` bu
 | ---- | ---- | ----------- |
 | tile | `TileDocument` | The tile to populate or clear. |
 | state | `Boolean` | Whether or not to populate the tile with the objects from the source scene. |
+| **Return** | `Promise<TileDocument>` | A promise that resolves to the TileDocument that was updated |
