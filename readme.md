@@ -29,9 +29,11 @@ The methods below are considered the "publick API" and should remain relatively 
 
 This method accepts two parameters, the first is a `Scene` object for the scene that is being turned into a tile. The second is an object with optional parameters.
 
-By default, the `x` and `y` coordinates are the coordinates of the upper-left corner of the tile. If `centered` is set to true, the `x` and `y` coordinates are the coordinates of the center of the tile.
+By default, the `x` and `y` coordinates are the coordinates of the upper-left corner of the tile. If `centered` is set to true, the `x` and `y` coordinates will be offset to become coordinates of the center of the tile.
 
 When coordinates are omitted, the tile will be placed in the center of the scene. When rotation is omitted, the tile will be placed with rotation 0. When populate is `false` or omitted, the tile will be created with no objects.
+
+***Note***: Foundry always treats the coordinates of a tile as the upper-left corner *pre-rotation*. This means that to position a rotated tile precicely, you may need to calculate the "correct" coordinate of the tile before creating it such that the image and objects appear at the correct location.
 
 #### Parameters
 
