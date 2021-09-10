@@ -90,8 +90,8 @@ class SceneTiler {
 	 * @static
 	 * @param  {Scene}    scene              - The scene to create a tile from
 	 * @param  {object}  [options]           - An object of optional parameters
-	 * @param  {Number}  [options.x]         - The x position of the center of the scene tile
-	 * @param  {Number}  [options.y]         - The y position of the center of the scene tile
+	 * @param  {Number}  [options.x]         - The x position of the scene tile
+	 * @param  {Number}  [options.y]         - The y position of the scene tile
 	 * @param  {Number}  [options.rotation]  - The rotational angle of the scene, 0 is not rotated at all
 	 * @param  {Boolean} [options.populate]  - If true, the tile will be populated immediately
 	 * @param  {Boolean} [options.centered]  - If true, the tile position is shifted to be relative to the center of the tile

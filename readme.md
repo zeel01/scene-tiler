@@ -29,6 +29,8 @@ The methods below are considered the "publick API" and should remain relatively 
 
 This method accepts two parameters, the first is a `Scene` object for the scene that is being turned into a tile. The second is an object with optional parameters.
 
+By default, the `x` and `y` coordinates are the coordinates of the upper-left corner of the tile. If `centered` is set to true, the `x` and `y` coordinates are the coordinates of the center of the tile.
+
 When coordinates are omitted, the tile will be placed in the center of the scene. When rotation is omitted, the tile will be placed with rotation 0. When populate is `false` or omitted, the tile will be created with no objects.
 
 #### Parameters
@@ -37,11 +39,11 @@ When coordinates are omitted, the tile will be placed in the center of the scene
 | ---- | ---- | ----------- | - |
 | scene | `Scene` | The scene that is being turned into a tile. | |
 | options | `Object` | An object with optional parameters. | *optional* |
-| options.x | `Number` | The x position of the center of the tile in the scene. | *optional* |
-| options.y | `Number` | The y position of the center of the tile in the scene. | *optional* |
+| options.x | `Number` | The x position of the tile in the scene. | *optional* |
+| options.y | `Number` | The y position of the tile in the scene. | *optional* |
 | options.rotation | `Number` | The rotation of the tile in the scene. | *optional* |
 | options.populate | `Boolean` | Whether or not to populate the tile with the objects from the source scene. | *optional* |
-| options.centered | `Boolean` | If true, the tile position is shifted to be relative to the center of the tile. | *optional* |
+| options.centered | `Boolean` | If true, the tile position is shifted to be relative to the center of the tile. When false, the tile position is the upper-left corner of the tile. | *optional* |
 | **Return** | `Promise<TileDocument>` | A promise that resolves to the TileDocument that was created for the Scene | |
 
 #### Example
