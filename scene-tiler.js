@@ -101,15 +101,15 @@ class SceneTiler {
 	static async create(scene, { x, y, rotation, populate, centered } = {}) {
 		const tiles = await this.createTile(
 			scene, scene.uuid, 
-			x ?? game.canvas.scene.data.width  / 2,
-			y ?? game.canvas.scene.data.height / 2,
+			x ?? game.canvas.scene.width  / 2,
+			y ?? game.canvas.scene.height / 2,
 			rotation ?? 0,
 			centered ?? false,
 			populate ?? false
 		);
 		const tile  = tiles[0];
 
-		if (populate) await this.deploySceneTile(tile.data);
+		if (populate) await this.deploySceneTile(tile);
 
 		return tile;
 	}
@@ -154,7 +154,7 @@ class SceneTiler {
 	 * @memberof SceneTiler
 	 */
 	static async setTileState(tile, state) {
-		if (tile.data.flags["scene-tiler"]?.scene)
+		if (tile.flags["scene-tiler"]?.scene)
 			return await tile.update({ locked: state });
 		else {
 			const message = game.i18n.localize("scene-tiler.notifications.warn.notaSceneTile");
@@ -184,13 +184,9 @@ class SceneTiler {
 	 * @return {Object|void}       The created tile, or returns early if not dropping  a Scene or if the source isn't found
 	 * @memberof SceneTiler
 	 */
-	static async dropCanvasData(canvas, { id, type, pack, x, y }) {
+	static async dropCanvasData(canvas, { id, type, uuid, x, y }) {
 		if (type != "Scene") return;
 		
-		let uuid = "";
-		if (pack) uuid = `Compendium.${pack}.${id}`;
-		else      uuid = `${type}.${id}`;
-	
 		const source = await fromUuid(uuid);
 		
 		if (!source) { 
@@ -219,7 +215,7 @@ class SceneTiler {
 		if ( typeof update?.locked == "undefined" &&
 			 typeof update?.width  == "undefined" &&
 			 typeof update?.height == "undefined" ||
-			 !tileDoc.data?.flags["scene-tiler"]?.scene ) return;
+			 !tileDoc?.flags["scene-tiler"]?.scene ) return;
 
 		if (update.width || update.height) {
 			update.width = undefined;
@@ -227,8 +223,8 @@ class SceneTiler {
 			ui.notifications.warn(game.i18n.localize("SCNTILE.notifications.warn.noResize"));
 		}
 
-		if (update.locked) this.deploySceneTile(tileDoc.data);
-		else               this.clearSceneTile(tileDoc.data);
+		if (update.locked) this.deploySceneTile(tileDoc);
+		else               this.clearSceneTile(tileDoc);
 	}
 
 	/**
@@ -269,7 +265,7 @@ class SceneTiler {
 			if (!entities) continue;
 			await canvas.scene.deleteEmbeddedDocuments(def.className, entities); 
 		}
-		await canvas.background.get(data._id).document.update({ "flags.scene-tiler.entities": null }); 
+		await canvas.tiles.get(data._id).document.update({ "flags.scene-tiler.entities": null }); 
 	}
 
 	/**
@@ -292,10 +288,10 @@ class SceneTiler {
 	 */
 	static async createTile(source, uuid, x, y, rotation = 0, centered = true, locked = false) {
 		return await canvas.scene.createEmbeddedDocuments("Tile", [{
-			img: source.img || "modules/scene-tiler/_Blank.png",
+			img: source.background.src || "modules/scene-tiler/_Blank.png",
 			flags: { "scene-tiler": { scene: uuid } },
 			rotation, locked,
-			...this.Helpers.getTilePos(source.data, x, y, centered)
+			...this.Helpers.getTilePos(source, x, y, centered)
 		}]);
 	}
 
@@ -318,7 +314,7 @@ class SceneTiler {
 
 		const flagData = this.getObjectIds(createdObjects);
 		
-		await canvas.background.get(tileData._id).document.update({ "flags.scene-tiler.entities": flagData });
+		await canvas.tiles.get(tileData._id).document.update({ "flags.scene-tiler.entities": flagData });
 		
 		Hooks.callAll("createPlaceableObjects", canvas.scene, createdObjects, {}, game.userId);
 	}
@@ -382,10 +378,10 @@ class SceneTiler {
 	 */
 	static getObjects(source, tile) {
 		const objects = {};
-		const [px, py] = this.Helpers.getPadding(source.data);
+		const [px, py] = this.Helpers.getPadding(source);
 
 		/** @type {Number} The ratio of grid size between source and target scenes */
-		const scale = this.Helpers.getScaleFactor(source.data, canvas.scene.data);
+		const scale = this.Helpers.getScaleFactor(source, canvas.scene);
 
 		for (const def of this.layers) {
 			const entities = this.prepareObjects(source, def.type, tile, scale, px, py);
@@ -413,7 +409,7 @@ class SceneTiler {
 	 */
 	static getForegroundTile(tiles, source, tile, scale) {
 		// If there isn't a foreground image, do nothing.
-		if (!source.data.foreground) return;
+		if (!source.foreground) return;
 
 		/** @type {number} The lowest z value of any overhead tile */
 		const minZ = tiles
@@ -422,7 +418,7 @@ class SceneTiler {
 
 		// The primary data of the new tile
 		const foreground = {
-			img: source.data.foreground,
+			img: source.foreground.src,
 			overhead: true,
 			occlusion: { mode: 0 },      // Mode 0 is no occlusion, this tile is always visible
 			x: tile.x, y: tile.y,
@@ -451,7 +447,7 @@ class SceneTiler {
 		return source[type].map(entity => {
 			if (type == this.layerDefs.tiles.type) entity.z += tile.z;
 
-			return this.translateEntity(entity.data.toObject(), type, tile, ...spxy);
+			return this.translateEntity(entity.toObject(), type, tile, ...spxy);
 		});
 	}
 

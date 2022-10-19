@@ -21,12 +21,12 @@ class SceneTilerHelpers {
 	 * @memberof SceneTilerHelpers
 	 */
 	static getScaleFactor(source, target) {
-		if (source.gridUnits != target.gridUnits)
+		if (source.grid.units != target.grid.units)
 			ui.notifications.warn(game.i18n.localize("SCNTILE.notifications.warn.unmatchedUnits"));
 
 		const distScale = 
-			   STEntityTranslators.calculateScaleFactor(source.gridDistance, target.gridDistance)
-		return STEntityTranslators.calculateScaleFactor(source.grid, target.grid) / distScale;
+			   STEntityTranslators.calculateScaleFactor(source.grid.distance, target.grid.distance)
+		return STEntityTranslators.calculateScaleFactor(source.grid.size, target.grid.size) / distScale;
 	}
 
 	/**
@@ -47,7 +47,7 @@ class SceneTilerHelpers {
 	 * @memberof SceneTilerHelpers
 	 */
 	static getTilePos(source, x, y, centered = true) {
-		const scale = this.getScaleFactor(source, canvas.scene.data);
+		const scale = this.getScaleFactor(source, canvas.scene);
 
 		const  { width, height } =
 			STEntityTranslators.getScaledTileSize(source, scale);
@@ -56,8 +56,10 @@ class SceneTilerHelpers {
 			x = x - width  / 2;
 			y = y - height / 2;
 		}
-
-		if (!canvas.grid.hitArea.contains(x, y)) x = y = 0;
+		
+		const d = game.canvas.dimensions;
+		x = Math.clamped(x, 0, d.width-1);
+		y = Math.clamped(y, 0, d.height-1);
 
 		return { width, height, ...canvas.grid.getSnappedPosition(x, y) };
 	}
@@ -71,7 +73,7 @@ class SceneTilerHelpers {
 	 * @memberof SceneTilerHelpers
 	 */
 	static getPadding(source) {
-		const padding = source.padding, grid = source.grid;
+		const padding = source.padding, grid = source.grid.size;
 		return [ Math.ceil(source.width  / grid * padding) * grid,
 		         Math.ceil(source.height / grid * padding) * grid ]
 	}

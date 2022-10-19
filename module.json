@@ -12,8 +12,12 @@
 		}
 	],
 	"version": "2.1.0",
-	"minimumCoreVersion": "0.8.5",
-	"compatibleCoreVersion": "0.8.9",
+	"manifestPlusVersion": "1.2.0",
+	"compatibility": {
+		"minimum": 10,
+		"verified": 10,
+		"maximum": 10
+	},
 	"scripts": [
 		"entity-translators.js",
 		"scene-tiler-helpers.js",
